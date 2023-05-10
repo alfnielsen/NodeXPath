@@ -38,25 +38,24 @@ export declare class NodeXPath<TJson = any> {
     parseJsonContent(): this | undefined;
     parseJson<TJson>(): TJson | undefined;
 }
-declare function X(fullPath: string): Promise<NodeXPath<unknown>>;
-declare namespace X {
-    export var fromPath: typeof NodeXPath.fromPath;
-    export var fromPathWithContent: typeof NodeXPath.fromPathWithContent;
-    export var fromRelPath: typeof NodeXPath.fromRelPath;
-    export var fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
-    export var sep: "\\" | "/";
-    export var load: (fullPath: string) => Promise<string>;
-    export var loadJson: <TJson>(fullPath: string) => Promise<TJson | undefined>;
-    export var save: (fullPath: string, content: string, encoding?: BufferEncoding) => Promise<void>;
-    var _a: (fullPath: string) => Promise<void>;
-    export var exists: (fullPath: string) => Promise<boolean>;
-    export var ensureDir: (fullPath: string) => Promise<void>;
-    export var isFile: (fullPath: string) => Promise<boolean>;
-    export var isDir: (fullPath: string) => Promise<boolean>;
-    export var children: (fullPath: string) => Promise<fs.Dirent[]>;
-    export var childDirs: (fullPath: string) => Promise<fs.Dirent[]>;
-    export var childFiles: (fullPath: string) => Promise<fs.Dirent[]>;
-    export var relativeTo: (from: string, to: string) => string;
-    export { _a as delete };
-}
-export default X;
+export declare function fx(fullPath: string): Promise<NodeXPath<unknown>>;
+export declare const x: {
+    fromPath: typeof NodeXPath.fromPath;
+    fromPathWithContent: typeof NodeXPath.fromPathWithContent;
+    fromRelPath: typeof NodeXPath.fromRelPath;
+    fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
+    sep: "\\" | "/";
+    load: (fullPath: string) => Promise<string>;
+    loadJson: <TJson>(fullPath: string) => Promise<TJson | undefined>;
+    save: (fullPath: string, content: string, encoding?: BufferEncoding) => Promise<void>;
+    delete: (fullPath: string) => Promise<void>;
+    exists: (fullPath: string) => Promise<boolean>;
+    ensureDir: (fullPath: string) => Promise<void>;
+    isFile: (fullPath: string) => Promise<boolean>;
+    isDir: (fullPath: string) => Promise<boolean>;
+    children: (fullPath: string) => Promise<fs.Dirent[]>;
+    childDirs: (fullPath: string) => Promise<fs.Dirent[]>;
+    childFiles: (fullPath: string) => Promise<fs.Dirent[]>;
+    relativeTo: (from: string, to: string) => string;
+};
+export default x;

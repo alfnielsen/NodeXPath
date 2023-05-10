@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NodeXPath = void 0;
+exports.x = exports.fx = exports.NodeXPath = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 class NodeXPath {
@@ -217,95 +217,98 @@ class NodeXPath {
 exports.NodeXPath = NodeXPath;
 NodeXPath.sep = path_1.default.sep;
 // Factory
-function X(fullPath) {
+function fx(fullPath) {
     return NodeXPath.fromPath(fullPath);
 }
-X.fromPath = NodeXPath.fromPath;
-X.fromPathWithContent = NodeXPath.fromPathWithContent;
-X.fromRelPath = NodeXPath.fromRelPath;
-X.fromRelPathWithContent = NodeXPath.fromRelPathWithContent;
-X.sep = path_1.default.sep;
-X.load = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
-});
-X.loadJson = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    let c = yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
-    try {
-        return JSON.parse(c);
-    }
-    catch (e) {
-        (_a = console.log) === null || _a === void 0 ? void 0 : _a.call(console, "NodeXPath - loadJson SyntaxError:", e);
-    }
-});
-X.save = (fullPath, content, encoding = "utf8") => __awaiter(void 0, void 0, void 0, function* () {
-    yield fs_extra_1.default.ensureDir(path_1.default.dirname(fullPath));
-    yield fs_extra_1.default.writeFile(fullPath, content, { encoding });
-});
-X.delete = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    if (yield fs_extra_1.default.pathExists(fullPath)) {
-        yield fs_extra_1.default.remove(fullPath);
-    }
-});
-X.exists = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield fs_extra_1.default.pathExists(fullPath);
-});
-X.ensureDir = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    let dir = fullPath;
-    if (exists) {
-        let stat = yield fs_extra_1.default.stat(fullPath);
-        let isFile = stat.isFile();
-        if (isFile) {
+exports.fx = fx;
+exports.x = {
+    fromPath: NodeXPath.fromPath,
+    fromPathWithContent: NodeXPath.fromPathWithContent,
+    fromRelPath: NodeXPath.fromRelPath,
+    fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
+    sep: path_1.default.sep,
+    load: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        return yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
+    }),
+    loadJson: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        let c = yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
+        try {
+            return JSON.parse(c);
+        }
+        catch (e) {
+            (_a = console.log) === null || _a === void 0 ? void 0 : _a.call(console, "NodeXPath - loadJson SyntaxError:", e);
+        }
+    }),
+    save: (fullPath, content, encoding = "utf8") => __awaiter(void 0, void 0, void 0, function* () {
+        yield fs_extra_1.default.ensureDir(path_1.default.dirname(fullPath));
+        yield fs_extra_1.default.writeFile(fullPath, content, { encoding });
+    }),
+    delete: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        if (yield fs_extra_1.default.pathExists(fullPath)) {
+            yield fs_extra_1.default.remove(fullPath);
+        }
+    }),
+    exists: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        return yield fs_extra_1.default.pathExists(fullPath);
+    }),
+    ensureDir: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        let dir = fullPath;
+        if (exists) {
+            let stat = yield fs_extra_1.default.stat(fullPath);
+            let isFile = stat.isFile();
+            if (isFile) {
+                dir = path_1.default.dirname(fullPath);
+            }
+            yield fs_extra_1.default.ensureDir(dir);
+            return;
+        }
+        let p = path_1.default.parse(fullPath);
+        if (p.ext) {
             dir = path_1.default.dirname(fullPath);
         }
         yield fs_extra_1.default.ensureDir(dir);
-        return;
-    }
-    let p = path_1.default.parse(fullPath);
-    if (p.ext) {
-        dir = path_1.default.dirname(fullPath);
-    }
-    yield fs_extra_1.default.ensureDir(dir);
-});
-X.isFile = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    if (!exists)
-        return false;
-    let stat = yield fs_extra_1.default.stat(fullPath);
-    return stat.isFile();
-});
-X.isDir = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    if (!exists)
-        return false;
-    let stat = yield fs_extra_1.default.stat(fullPath);
-    return stat.isDirectory();
-});
-X.children = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    if (!exists)
-        return [];
-    let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
-    return children;
-});
-X.childDirs = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    if (!exists)
-        return [];
-    let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
-    let dirs = children.filter((item) => item.isDirectory());
-    return dirs;
-});
-X.childFiles = (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-    let exists = yield fs_extra_1.default.pathExists(fullPath);
-    if (!exists)
-        return [];
-    let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
-    let files = children.filter((item) => item.isFile());
-    return files;
-});
-X.relativeTo = (from, to) => {
-    return path_1.default.relative(from, to);
+    }),
+    isFile: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        if (!exists)
+            return false;
+        let stat = yield fs_extra_1.default.stat(fullPath);
+        return stat.isFile();
+    }),
+    isDir: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        if (!exists)
+            return false;
+        let stat = yield fs_extra_1.default.stat(fullPath);
+        return stat.isDirectory();
+    }),
+    children: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        if (!exists)
+            return [];
+        let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
+        return children;
+    }),
+    childDirs: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        if (!exists)
+            return [];
+        let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
+        let dirs = children.filter((item) => item.isDirectory());
+        return dirs;
+    }),
+    childFiles: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+        let exists = yield fs_extra_1.default.pathExists(fullPath);
+        if (!exists)
+            return [];
+        let children = yield fs_extra_1.default.readdir(fullPath, { withFileTypes: true });
+        let files = children.filter((item) => item.isFile());
+        return files;
+    }),
+    relativeTo: (from, to) => {
+        return path_1.default.relative(from, to);
+    },
 };
-exports.default = X;
+exports.default = exports.x;

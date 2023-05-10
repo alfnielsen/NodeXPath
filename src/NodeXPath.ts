@@ -203,89 +203,92 @@ export class NodeXPath<TJson = any> {
 }
 
 // Factory
-function X(fullPath: string) {
+export function fx(fullPath: string) {
   return NodeXPath.fromPath(fullPath)
 }
-X.fromPath = NodeXPath.fromPath
-X.fromPathWithContent = NodeXPath.fromPathWithContent
-X.fromRelPath = NodeXPath.fromRelPath
-X.fromRelPathWithContent = NodeXPath.fromRelPathWithContent
-X.sep = nodePath.sep
-X.load = async (fullPath: string) => {
-  return await fs.readFile(fullPath, { encoding: "utf8" })
-}
-X.loadJson = async <TJson>(fullPath: string) => {
-  let c = await fs.readFile(fullPath, { encoding: "utf8" })
-  try {
-    return JSON.parse(c) as TJson
-  } catch (e) {
-    console.log?.("NodeXPath - loadJson SyntaxError:", e)
-  }
-}
-X.save = async (fullPath: string, content: string, encoding: BufferEncoding = "utf8") => {
-  await fs.ensureDir(nodePath.dirname(fullPath))
-  await fs.writeFile(fullPath, content, { encoding })
-}
-X.delete = async (fullPath: string) => {
-  if (await fs.pathExists(fullPath)) {
-    await fs.remove(fullPath)
-  }
-}
-X.exists = async (fullPath: string) => {
-  return await fs.pathExists(fullPath)
-}
-X.ensureDir = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  let dir = fullPath
-  if (exists) {
-    let stat = await fs.stat(fullPath)
-    let isFile = stat.isFile()
-    if (isFile) {
+
+export const x = {
+  fromPath: NodeXPath.fromPath,
+  fromPathWithContent: NodeXPath.fromPathWithContent,
+  fromRelPath: NodeXPath.fromRelPath,
+  fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
+  sep: nodePath.sep,
+  load: async (fullPath: string) => {
+    return await fs.readFile(fullPath, { encoding: "utf8" })
+  },
+  loadJson: async <TJson>(fullPath: string) => {
+    let c = await fs.readFile(fullPath, { encoding: "utf8" })
+    try {
+      return JSON.parse(c) as TJson
+    } catch (e) {
+      console.log?.("NodeXPath - loadJson SyntaxError:", e)
+    }
+  },
+  save: async (fullPath: string, content: string, encoding: BufferEncoding = "utf8") => {
+    await fs.ensureDir(nodePath.dirname(fullPath))
+    await fs.writeFile(fullPath, content, { encoding })
+  },
+  delete: async (fullPath: string) => {
+    if (await fs.pathExists(fullPath)) {
+      await fs.remove(fullPath)
+    }
+  },
+  exists: async (fullPath: string) => {
+    return await fs.pathExists(fullPath)
+  },
+  ensureDir: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    let dir = fullPath
+    if (exists) {
+      let stat = await fs.stat(fullPath)
+      let isFile = stat.isFile()
+      if (isFile) {
+        dir = nodePath.dirname(fullPath)
+      }
+      await fs.ensureDir(dir)
+      return
+    }
+    let p = nodePath.parse(fullPath)
+    if (p.ext) {
       dir = nodePath.dirname(fullPath)
     }
     await fs.ensureDir(dir)
-    return
-  }
-  let p = nodePath.parse(fullPath)
-  if (p.ext) {
-    dir = nodePath.dirname(fullPath)
-  }
-  await fs.ensureDir(dir)
-}
-X.isFile = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  if (!exists) return false
-  let stat = await fs.stat(fullPath)
-  return stat.isFile()
-}
-X.isDir = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  if (!exists) return false
-  let stat = await fs.stat(fullPath)
-  return stat.isDirectory()
-}
-X.children = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  if (!exists) return []
-  let children = await fs.readdir(fullPath, { withFileTypes: true })
-  return children
-}
-X.childDirs = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  if (!exists) return []
-  let children = await fs.readdir(fullPath, { withFileTypes: true })
-  let dirs = children.filter((item) => item.isDirectory())
-  return dirs
-}
-X.childFiles = async (fullPath: string) => {
-  let exists = await fs.pathExists(fullPath)
-  if (!exists) return []
-  let children = await fs.readdir(fullPath, { withFileTypes: true })
-  let files = children.filter((item) => item.isFile())
-  return files
-}
-X.relativeTo = (from: string, to: string) => {
-  return nodePath.relative(from, to)
+  },
+  isFile: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    if (!exists) return false
+    let stat = await fs.stat(fullPath)
+    return stat.isFile()
+  },
+  isDir: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    if (!exists) return false
+    let stat = await fs.stat(fullPath)
+    return stat.isDirectory()
+  },
+  children: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    if (!exists) return []
+    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    return children
+  },
+  childDirs: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    if (!exists) return []
+    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    let dirs = children.filter((item) => item.isDirectory())
+    return dirs
+  },
+  childFiles: async (fullPath: string) => {
+    let exists = await fs.pathExists(fullPath)
+    if (!exists) return []
+    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    let files = children.filter((item) => item.isFile())
+    return files
+  },
+  relativeTo: (from: string, to: string) => {
+    return nodePath.relative(from, to)
+  },
 }
 
-export default X
+export default x
