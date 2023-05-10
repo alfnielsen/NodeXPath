@@ -1,5 +1,4 @@
 import fs from "fs-extra"
-import path from "path"
 import nodePath from "path"
 
 export type NodeXPathType = "file" | "dir"
@@ -12,7 +11,8 @@ export class NodeXPath<TJson = any> {
     loadContent = false,
     parseJson = false,
   ): Promise<NodeXPath<TJson>> {
-    let x = new NodeXPath().setPath(fullPath, loadContent, parseJson)
+    let x = new NodeXPath()
+    await x.setPath(fullPath, loadContent, parseJson)
     return x
   }
 
@@ -34,7 +34,7 @@ export class NodeXPath<TJson = any> {
     parseJson = false,
   ) {
     let x = new NodeXPath()
-    x.setRelPath(root, relPath, loadContent, parseJson)
+    await x.setRelPath(root, relPath, loadContent, parseJson)
     return x
   }
 
@@ -91,7 +91,7 @@ export class NodeXPath<TJson = any> {
     parseJson = false,
   ) {
     this.fullPath = nodePath.join(root, relPath)
-    this.setPath(this.fullPath, loadContent, parseJson)
+    await this.setPath(this.fullPath, loadContent, parseJson)
     return this
   }
 

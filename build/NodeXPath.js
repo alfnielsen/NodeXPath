@@ -33,7 +33,8 @@ class NodeXPath {
     }
     static fromPath(fullPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            let x = new NodeXPath().setPath(fullPath, loadContent, parseJson);
+            let x = new NodeXPath();
+            yield x.setPath(fullPath, loadContent, parseJson);
             return x;
         });
     }
@@ -48,7 +49,7 @@ class NodeXPath {
     static fromRelPath(root, relPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let x = new NodeXPath();
-            x.setRelPath(root, relPath, loadContent, parseJson);
+            yield x.setRelPath(root, relPath, loadContent, parseJson);
             return x;
         });
     }
@@ -83,7 +84,7 @@ class NodeXPath {
     setRelPath(root, relPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             this.fullPath = path_1.default.join(root, relPath);
-            this.setPath(this.fullPath, loadContent, parseJson);
+            yield this.setPath(this.fullPath, loadContent, parseJson);
             return this;
         });
     }
