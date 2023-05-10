@@ -10,7 +10,7 @@ export class NodeXPath<TJson = any> {
   static async fromPath<TJson>(
     fullPath: string,
     loadContent = false,
-    parseJson = true,
+    parseJson = false,
   ): Promise<NodeXPath<TJson>> {
     let x = new NodeXPath().setPath(fullPath, loadContent, parseJson)
     return x
@@ -19,7 +19,7 @@ export class NodeXPath<TJson = any> {
   static async fromPathWithContent<TJson>(
     fullPath: string,
     content: string,
-    parseJson = true,
+    parseJson = false,
   ): Promise<NodeXPath<TJson>> {
     let x = new NodeXPath()
     await x.setPath(fullPath, false, false)
@@ -31,7 +31,7 @@ export class NodeXPath<TJson = any> {
     root: string,
     relPath: string,
     loadContent = false,
-    parseJson = true,
+    parseJson = false,
   ) {
     let x = new NodeXPath()
     x.setRelPath(root, relPath, loadContent, parseJson)
@@ -42,7 +42,7 @@ export class NodeXPath<TJson = any> {
     root: string,
     relPath: string,
     content: string,
-    parseJson = true,
+    parseJson = false,
   ) {
     let x = new NodeXPath()
     await x.setRelPath(root, relPath, false, false)
@@ -65,7 +65,7 @@ export class NodeXPath<TJson = any> {
 
   sep = nodePath.sep
 
-  async setPath(fullPath: string, loadContent = false, parseJson = true) {
+  async setPath(fullPath: string, loadContent = false, parseJson = false) {
     this.fullPath = fullPath
     this.exists = await fs.pathExists(fullPath)
     this.stat = await fs.stat(fullPath)
@@ -84,7 +84,12 @@ export class NodeXPath<TJson = any> {
     return this
   }
 
-  async setRelPath(root: string, relPath: string, loadContent = false, parseJson = true) {
+  async setRelPath(
+    root: string,
+    relPath: string,
+    loadContent = false,
+    parseJson = false,
+  ) {
     this.fullPath = nodePath.join(root, relPath)
     this.setPath(this.fullPath, loadContent, parseJson)
     return this

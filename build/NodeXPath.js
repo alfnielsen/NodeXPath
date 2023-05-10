@@ -31,13 +31,13 @@ class NodeXPath {
         this.parentDir = "";
         this.sep = path_1.default.sep;
     }
-    static fromPath(fullPath, loadContent = false, parseJson = true) {
+    static fromPath(fullPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let x = new NodeXPath().setPath(fullPath, loadContent, parseJson);
             return x;
         });
     }
-    static fromPathWithContent(fullPath, content, parseJson = true) {
+    static fromPathWithContent(fullPath, content, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let x = new NodeXPath();
             yield x.setPath(fullPath, false, false);
@@ -45,14 +45,14 @@ class NodeXPath {
             return x;
         });
     }
-    static fromRelPath(root, relPath, loadContent = false, parseJson = true) {
+    static fromRelPath(root, relPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let x = new NodeXPath();
             x.setRelPath(root, relPath, loadContent, parseJson);
             return x;
         });
     }
-    static fromRelPathWithContent(root, relPath, content, parseJson = true) {
+    static fromRelPathWithContent(root, relPath, content, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let x = new NodeXPath();
             yield x.setRelPath(root, relPath, false, false);
@@ -60,7 +60,7 @@ class NodeXPath {
             return x;
         });
     }
-    setPath(fullPath, loadContent = false, parseJson = true) {
+    setPath(fullPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             this.fullPath = fullPath;
             this.exists = yield fs_extra_1.default.pathExists(fullPath);
@@ -80,7 +80,7 @@ class NodeXPath {
             return this;
         });
     }
-    setRelPath(root, relPath, loadContent = false, parseJson = true) {
+    setRelPath(root, relPath, loadContent = false, parseJson = false) {
         return __awaiter(this, void 0, void 0, function* () {
             this.fullPath = path_1.default.join(root, relPath);
             this.setPath(this.fullPath, loadContent, parseJson);
