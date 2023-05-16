@@ -48,8 +48,8 @@ export declare const x: {
     fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
     sep: "\\" | "/";
     join(...paths: string[]): string;
-    load: (fullPath: string) => Promise<string>;
-    loadJson: <TJson>(fullPath: string) => Promise<TJson | undefined>;
+    load: (fullPath: string, stripReturnFeed?: boolean) => Promise<string>;
+    loadJson: <TJson>(fullPath: string, stripReturnFeed?: boolean) => Promise<TJson | undefined>;
     save: (fullPath: string, content: string, encoding?: BufferEncoding) => Promise<void>;
     delete: (fullPath: string) => Promise<void>;
     exists: (fullPath: string) => Promise<boolean>;

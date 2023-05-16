@@ -232,11 +232,15 @@ export const x = {
     let fullPath = nodePath.join(...paths)
     return fullPath
   },
-  load: async (fullPath: string) => {
-    return await fs.readFile(fullPath, { encoding: "utf8" })
+  load: async (fullPath: string, stripReturnFeed = true) => {
+    const content = await fs.readFile(fullPath, { encoding: "utf8" })
+    if (stripReturnFeed) {
+      return content.replace(/\r\n/g, "\n")
+    }
+    return content
   },
-  loadJson: async <TJson>(fullPath: string) => {
-    let c = await fs.readFile(fullPath, { encoding: "utf8" })
+  loadJson: async <TJson>(fullPath: string, stripReturnFeed = true) => {
+    let c = await x.load(fullPath, stripReturnFeed)
     try {
       return JSON.parse(c) as TJson
     } catch (e) {

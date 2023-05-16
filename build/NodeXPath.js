@@ -240,12 +240,16 @@ exports.x = {
         let fullPath = path_1.default.join(...paths);
         return fullPath;
     },
-    load: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
-        return yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
+    load: (fullPath, stripReturnFeed = true) => __awaiter(void 0, void 0, void 0, function* () {
+        const content = yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
+        if (stripReturnFeed) {
+            return content.replace(/\r\n/g, "\n");
+        }
+        return content;
     }),
-    loadJson: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
+    loadJson: (fullPath, stripReturnFeed = true) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        let c = yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
+        let c = yield exports.x.load(fullPath, stripReturnFeed);
         try {
             return JSON.parse(c);
         }
