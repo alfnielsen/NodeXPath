@@ -24,6 +24,8 @@ export declare class NodeXPath<TJson = any> {
     setRelPath(root: string, relPath: string, loadContent?: boolean, parseJson?: boolean): Promise<this>;
     relativeTo(to: string): string;
     relativeFrom(from: string): string;
+    join(path: string): string;
+    joinTo(path: string): string;
     getChildren(): Promise<fs.Dirent[]>;
     getChildDirs(): Promise<fs.Dirent[]>;
     getChildFiles(): Promise<fs.Dirent[]>;
@@ -45,6 +47,7 @@ export declare const x: {
     fromRelPath: typeof NodeXPath.fromRelPath;
     fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
     sep: "\\" | "/";
+    join(...paths: string[]): string;
     load: (fullPath: string) => Promise<string>;
     loadJson: <TJson>(fullPath: string) => Promise<TJson | undefined>;
     save: (fullPath: string, content: string, encoding?: BufferEncoding) => Promise<void>;

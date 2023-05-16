@@ -96,6 +96,14 @@ class NodeXPath {
         let fullPath = path_1.default.relative(from, this.fullPath);
         return fullPath;
     }
+    join(path) {
+        let fullPath = path_1.default.join(this.fullPath, path);
+        return fullPath;
+    }
+    joinTo(path) {
+        let fullPath = path_1.default.join(path, this.fullPath);
+        return fullPath;
+    }
     getChildren() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.type === "file")
@@ -228,6 +236,10 @@ exports.x = {
     fromRelPath: NodeXPath.fromRelPath,
     fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
     sep: path_1.default.sep,
+    join(...paths) {
+        let fullPath = path_1.default.join(...paths);
+        return fullPath;
+    },
     load: (fullPath) => __awaiter(void 0, void 0, void 0, function* () {
         return yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
     }),

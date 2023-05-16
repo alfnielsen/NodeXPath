@@ -105,6 +105,16 @@ export class NodeXPath<TJson = any> {
     return fullPath
   }
 
+  join(path: string) {
+    let fullPath = nodePath.join(this.fullPath, path)
+    return fullPath
+  }
+
+  joinTo(path: string) {
+    let fullPath = nodePath.join(path, this.fullPath)
+    return fullPath
+  }
+
   async getChildren() {
     if (this.type === "file") return []
     let children = await fs.readdir(this.fullPath, { withFileTypes: true })
@@ -218,6 +228,10 @@ export const x = {
   fromRelPath: NodeXPath.fromRelPath,
   fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
   sep: nodePath.sep,
+  join(...paths: string[]) {
+    let fullPath = nodePath.join(...paths)
+    return fullPath
+  },
   load: async (fullPath: string) => {
     return await fs.readFile(fullPath, { encoding: "utf8" })
   },

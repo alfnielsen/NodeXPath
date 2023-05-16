@@ -1,6 +1,6 @@
 {
   "name": "node-x-path",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Node fs and path helpers",
   "repository": "https://github.com/alfnielsen/NodeXPath.git",
   "author": "Alf Nielsen <alfnielsen@gmail.com>",
@@ -19,10 +19,12 @@
     "build/*"
   ],
   "scripts": {
-    "build": "tsc && microbundle --format modern,cjs,umd"
+    "build": "del-cli --force ./build && tsc && microbundle --format modern,cjs,umd",
+    "publish": "yarn run build && npm publish"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
+    "del-cli": "^5.0.0",
     "microbundle": "^0.15.1"
   }
 }
