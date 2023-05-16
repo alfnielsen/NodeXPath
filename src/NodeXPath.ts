@@ -268,7 +268,7 @@ export const x = {
     return content.split("\n")
   },
   trimEmptyLines(content: string) {
-    return content.replace(/^\s*\n/, "").replace(/\n\s*$/, "") // remove empty lines from start and end
+    return content.replace(/^(\s*\n)+/, "").replace(/(\n\s*)+$/, "") // remove empty lines from start and end
   },
   removeEmptyLines(content: string) {
     // remove each empty line

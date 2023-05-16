@@ -275,7 +275,7 @@ exports.x = {
         return content.split("\n");
     },
     trimEmptyLines(content) {
-        return content.replace(/^\s*\n/, "").replace(/\n\s*$/, ""); // remove empty lines from start and end
+        return content.replace(/^(\s*\n)+/, "").replace(/(\n\s*)+$/, ""); // remove empty lines from start and end
     },
     removeEmptyLines(content) {
         // remove each empty line
