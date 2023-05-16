@@ -196,13 +196,20 @@ export class NodeXPath<TJson = any> {
     return this
   }
 
-  lowestIndent(max = 8) {
+  lines() {
+    return this.content.split("\n")
+  }
+
+  minIndent(max = "        ") {
     let baseIndent = max
-    let lines = this.content.matchAll(indentRegex)
+    let lines = this.lines()
     for (const line of lines) {
-      if (line[1].length < baseIndent) {
-        if (line[1].length === 0) return 0
-        baseIndent = line[1].length
+      if (emptyLineRegex.test(line)) continue // exclude empty lines
+      if (line[1].length < baseIndent.length) {
+        let indent = line.match(indentRegex)
+        if (!indent) continue
+        if (line[1].length === 0) return ""
+        baseIndent = line[1]
       }
     }
     return baseIndent
@@ -239,7 +246,8 @@ export function fx(fullPath: string) {
   return NodeXPath.fromPath(fullPath)
 }
 
-export const indentRegex = /\n([^\S\n]*)/g
+export const indentRegex = /^[^\S\n]*/g
+export const emptyLineRegex = /^[^\S\n]$/g
 
 let _indent = "    "
 export const setIndent = (indent: string) => {
@@ -256,19 +264,25 @@ export const x = {
     let fullPath = nodePath.join(...paths)
     return fullPath
   },
+  lines(content: string) {
+    return content.split("\n")
+  },
   addIndent: (content: string, indent = _indent) => {
-    return _indent + content.replace(/\n/g, "\n" + indent)
+    return indent + content.replace(/\n/g, "\n" + indent)
   },
   removeIndent: (content: string, indent = _indent) => {
     return content.replace(new RegExp(`\n${indent}`, "g"), "\n")
   },
-  lowestIndent: (content: string, max = 8) => {
+  minIndent: (content: string, max = "        ") => {
     let baseIndent = max
-    let lines = content.matchAll(indentRegex)
+    let lines = content.split("\n")
     for (const line of lines) {
-      if (line[1].length < baseIndent) {
-        if (line[1].length === 0) return 0
-        baseIndent = line[1].length
+      if (emptyLineRegex.test(line)) continue // exclude empty lines
+      if (line[1].length < baseIndent.length) {
+        let indent = line.match(indentRegex)
+        if (!indent) continue
+        if (line[1].length === 0) return ""
+        baseIndent = line[1]
       }
     }
     return baseIndent

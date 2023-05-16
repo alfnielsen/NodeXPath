@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.x = exports.setIndent = exports.indentRegex = exports.fx = exports.NodeXPath = void 0;
+exports.x = exports.setIndent = exports.emptyLineRegex = exports.indentRegex = exports.fx = exports.NodeXPath = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 class NodeXPath {
@@ -195,14 +195,22 @@ class NodeXPath {
         this.content = indent + this.content.replace(/\n/g, "\n" + indent);
         return this;
     }
-    lowestIndent(max = 8) {
+    lines() {
+        return this.content.split("\n");
+    }
+    minIndent(max = "        ") {
         let baseIndent = max;
-        let lines = this.content.matchAll(exports.indentRegex);
+        let lines = this.lines();
         for (const line of lines) {
-            if (line[1].length < baseIndent) {
+            if (exports.emptyLineRegex.test(line))
+                continue; // exclude empty lines
+            if (line[1].length < baseIndent.length) {
+                let indent = line.match(exports.indentRegex);
+                if (!indent)
+                    continue;
                 if (line[1].length === 0)
-                    return 0;
-                baseIndent = line[1].length;
+                    return "";
+                baseIndent = line[1];
             }
         }
         return baseIndent;
@@ -246,7 +254,8 @@ function fx(fullPath) {
     return NodeXPath.fromPath(fullPath);
 }
 exports.fx = fx;
-exports.indentRegex = /\n([^\S\n]*)/g;
+exports.indentRegex = /^[^\S\n]*/g;
+exports.emptyLineRegex = /^[^\S\n]$/g;
 let _indent = "    ";
 const setIndent = (indent) => {
     _indent = indent;
@@ -262,20 +271,28 @@ exports.x = {
         let fullPath = path_1.default.join(...paths);
         return fullPath;
     },
+    lines(content) {
+        return content.split("\n");
+    },
     addIndent: (content, indent = _indent) => {
-        return _indent + content.replace(/\n/g, "\n" + indent);
+        return indent + content.replace(/\n/g, "\n" + indent);
     },
     removeIndent: (content, indent = _indent) => {
         return content.replace(new RegExp(`\n${indent}`, "g"), "\n");
     },
-    lowestIndent: (content, max = 8) => {
+    minIndent: (content, max = "        ") => {
         let baseIndent = max;
-        let lines = content.matchAll(exports.indentRegex);
+        let lines = content.split("\n");
         for (const line of lines) {
-            if (line[1].length < baseIndent) {
+            if (exports.emptyLineRegex.test(line))
+                continue; // exclude empty lines
+            if (line[1].length < baseIndent.length) {
+                let indent = line.match(exports.indentRegex);
+                if (!indent)
+                    continue;
                 if (line[1].length === 0)
-                    return 0;
-                baseIndent = line[1].length;
+                    return "";
+                baseIndent = line[1];
             }
         }
         return baseIndent;

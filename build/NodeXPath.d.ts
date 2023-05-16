@@ -38,12 +38,14 @@ export declare class NodeXPath<TJson = any> {
     replacePath(regex: RegExp, replacement: string): this;
     replaceLines(callback: (line: string, index: number) => void): this;
     addIndent(indent?: string): this;
-    lowestIndent(max?: number): number;
+    lines(): string[];
+    minIndent(max?: string): string;
     parseJsonContent(): this | undefined;
     parseJson<TJson>(): TJson | undefined;
 }
 export declare function fx(fullPath: string): Promise<NodeXPath<unknown>>;
 export declare const indentRegex: RegExp;
+export declare const emptyLineRegex: RegExp;
 export declare const setIndent: (indent: string) => void;
 export declare const x: {
     fromPath: typeof NodeXPath.fromPath;
@@ -52,9 +54,10 @@ export declare const x: {
     fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
     sep: "\\" | "/";
     join(...paths: string[]): string;
+    lines(content: string): string[];
     addIndent: (content: string, indent?: string) => string;
     removeIndent: (content: string, indent?: string) => string;
-    lowestIndent: (content: string, max?: number) => number;
+    minIndent: (content: string, max?: string) => string;
     load: (fullPath: string, stripReturnFeed?: boolean) => Promise<string>;
     loadJson: <TJson>(fullPath: string, stripReturnFeed?: boolean) => Promise<TJson | undefined>;
     save: (fullPath: string, content: string, encoding?: BufferEncoding) => Promise<void>;
