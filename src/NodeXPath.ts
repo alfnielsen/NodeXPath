@@ -275,10 +275,10 @@ export const x = {
     return content.replace(/^\s*\n/gm, "")
   },
   addIndent: (content: string, indent = _indent) => {
-    return indent + content.replace(/\n/g, "\n" + indent)
+    return content.replace(/(^|\n)/g, `$1${indent}`)
   },
   removeIndent: (content: string, indent = _indent) => {
-    return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "\n")
+    return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "$1")
   },
   minIndent: (content: string, max = "        ") => {
     let baseIndent = max

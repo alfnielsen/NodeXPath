@@ -282,10 +282,10 @@ exports.x = {
         return content.replace(/^\s*\n/gm, "");
     },
     addIndent: (content, indent = _indent) => {
-        return indent + content.replace(/\n/g, "\n" + indent);
+        return content.replace(/(^|\n)/g, `$1${indent}`);
     },
     removeIndent: (content, indent = _indent) => {
-        return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "\n");
+        return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "$1");
     },
     minIndent: (content, max = "        ") => {
         let baseIndent = max;
