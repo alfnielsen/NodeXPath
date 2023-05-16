@@ -191,6 +191,23 @@ export class NodeXPath<TJson = any> {
     return this
   }
 
+  addIndent(indent = _indent) {
+    this.content = indent + this.content.replace(/\n/g, "\n" + indent)
+    return this
+  }
+
+  lowestIndent(max = 8) {
+    let baseIndent = max
+    let lines = this.content.matchAll(indentRegex)
+    for (const line of lines) {
+      if (line[1].length < baseIndent) {
+        if (line[1].length === 0) return 0
+        baseIndent = line[1].length
+      }
+    }
+    return baseIndent
+  }
+
   parseJsonContent() {
     if (this.type !== "file") return undefined
     if (!this.content) return undefined
@@ -222,6 +239,13 @@ export function fx(fullPath: string) {
   return NodeXPath.fromPath(fullPath)
 }
 
+export const indentRegex = /\n([^\S\n]*)/g
+
+let _indent = "    "
+export const setIndent = (indent: string) => {
+  _indent = indent
+}
+
 export const x = {
   fromPath: NodeXPath.fromPath,
   fromPathWithContent: NodeXPath.fromPathWithContent,
@@ -231,6 +255,20 @@ export const x = {
   join(...paths: string[]) {
     let fullPath = nodePath.join(...paths)
     return fullPath
+  },
+  addIndent: (content: string, indent = _indent) => {
+    return _indent + content.replace(/\n/g, "\n" + indent)
+  },
+  lowestIndent: (content: string, max = 8) => {
+    let baseIndent = max
+    let lines = content.matchAll(indentRegex)
+    for (const line of lines) {
+      if (line[1].length < baseIndent) {
+        if (line[1].length === 0) return 0
+        baseIndent = line[1].length
+      }
+    }
+    return baseIndent
   },
   load: async (fullPath: string, stripReturnFeed = true) => {
     const content = await fs.readFile(fullPath, { encoding: "utf8" })

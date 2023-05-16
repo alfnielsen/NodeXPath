@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.x = exports.fx = exports.NodeXPath = void 0;
+exports.x = exports.setIndent = exports.indentRegex = exports.fx = exports.NodeXPath = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 class NodeXPath {
@@ -191,6 +191,22 @@ class NodeXPath {
         this.content = lines;
         return this;
     }
+    addIndent(indent = _indent) {
+        this.content = indent + this.content.replace(/\n/g, "\n" + indent);
+        return this;
+    }
+    lowestIndent(max = 8) {
+        let baseIndent = max;
+        let lines = this.content.matchAll(exports.indentRegex);
+        for (const line of lines) {
+            if (line[1].length < baseIndent) {
+                if (line[1].length === 0)
+                    return 0;
+                baseIndent = line[1].length;
+            }
+        }
+        return baseIndent;
+    }
     parseJsonContent() {
         var _a;
         if (this.type !== "file")
@@ -230,6 +246,12 @@ function fx(fullPath) {
     return NodeXPath.fromPath(fullPath);
 }
 exports.fx = fx;
+exports.indentRegex = /\n([^\S\n]*)/g;
+let _indent = "    ";
+const setIndent = (indent) => {
+    _indent = indent;
+};
+exports.setIndent = setIndent;
 exports.x = {
     fromPath: NodeXPath.fromPath,
     fromPathWithContent: NodeXPath.fromPathWithContent,
@@ -239,6 +261,21 @@ exports.x = {
     join(...paths) {
         let fullPath = path_1.default.join(...paths);
         return fullPath;
+    },
+    addIndent: (content, indent = _indent) => {
+        return _indent + content.replace(/\n/g, "\n" + indent);
+    },
+    lowestIndent: (content, max = 8) => {
+        let baseIndent = max;
+        let lines = content.matchAll(exports.indentRegex);
+        for (const line of lines) {
+            if (line[1].length < baseIndent) {
+                if (line[1].length === 0)
+                    return 0;
+                baseIndent = line[1].length;
+            }
+        }
+        return baseIndent;
     },
     load: (fullPath, stripReturnFeed = true) => __awaiter(void 0, void 0, void 0, function* () {
         const content = yield fs_extra_1.default.readFile(fullPath, { encoding: "utf8" });
