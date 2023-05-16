@@ -265,6 +265,9 @@ exports.x = {
     addIndent: (content, indent = _indent) => {
         return _indent + content.replace(/\n/g, "\n" + indent);
     },
+    removeIndent: (content, indent = _indent) => {
+        return content.replace(new RegExp(`\n${indent}`, "g"), "\n");
+    },
     lowestIndent: (content, max = 8) => {
         let baseIndent = max;
         let lines = content.matchAll(exports.indentRegex);

@@ -53,6 +53,7 @@ export declare const x: {
     sep: "\\" | "/";
     join(...paths: string[]): string;
     addIndent: (content: string, indent?: string) => string;
+    removeIndent: (content: string, indent?: string) => string;
     lowestIndent: (content: string, max?: number) => number;
     load: (fullPath: string, stripReturnFeed?: boolean) => Promise<string>;
     loadJson: <TJson>(fullPath: string, stripReturnFeed?: boolean) => Promise<TJson | undefined>;

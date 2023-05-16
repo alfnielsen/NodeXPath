@@ -259,6 +259,9 @@ export const x = {
   addIndent: (content: string, indent = _indent) => {
     return _indent + content.replace(/\n/g, "\n" + indent)
   },
+  removeIndent: (content: string, indent = _indent) => {
+    return content.replace(new RegExp(`\n${indent}`, "g"), "\n")
+  },
   lowestIndent: (content: string, max = 8) => {
     let baseIndent = max
     let lines = content.matchAll(indentRegex)
