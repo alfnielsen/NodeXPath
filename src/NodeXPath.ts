@@ -247,7 +247,7 @@ export function fx(fullPath: string) {
 }
 
 export const indentRegex = /^[^\S\n]*/g
-export const emptyLineRegex = /^[^\S\n]$/g
+export const emptyLineRegex = /^[^\S\n]*$/g
 
 let _indent = "    "
 export const setIndent = (indent: string) => {

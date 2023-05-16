@@ -255,7 +255,7 @@ function fx(fullPath) {
 }
 exports.fx = fx;
 exports.indentRegex = /^[^\S\n]*/g;
-exports.emptyLineRegex = /^[^\S\n]$/g;
+exports.emptyLineRegex = /^[^\S\n]*$/g;
 let _indent = "    ";
 const setIndent = (indent) => {
     _indent = indent;
