@@ -392,3 +392,4 @@ exports.x = {
         return path_1.default.relative(from, to);
     },
 };
+exports.default = Object.assign({}, exports.x);

@@ -375,3 +375,7 @@ export const x = {
     return nodePath.relative(from, to)
   },
 }
+
+export default {
+  ...x,
+}
