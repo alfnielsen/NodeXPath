@@ -55,6 +55,8 @@ export declare const x: {
     sep: "\\" | "/";
     join(...paths: string[]): string;
     lines(content: string): string[];
+    trimEmptyLines(content: string): string;
+    removeEmptyLines(content: string): string;
     addIndent: (content: string, indent?: string) => string;
     removeIndent: (content: string, indent?: string) => string;
     minIndent: (content: string, max?: string) => string;
@@ -71,4 +73,3 @@ export declare const x: {
     childFiles: (fullPath: string) => Promise<fs.Dirent[]>;
     relativeTo: (from: string, to: string) => string;
 };
-export default x;

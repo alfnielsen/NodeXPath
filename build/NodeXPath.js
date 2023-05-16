@@ -274,24 +274,33 @@ exports.x = {
     lines(content) {
         return content.split("\n");
     },
+    trimEmptyLines(content) {
+        return content.replace(/^\s*\n/, "").replace(/\n\s*$/, ""); // remove empty lines from start and end
+    },
+    removeEmptyLines(content) {
+        // remove each empty line
+        return content.replace(/^\s*\n/gm, "");
+    },
     addIndent: (content, indent = _indent) => {
         return indent + content.replace(/\n/g, "\n" + indent);
     },
     removeIndent: (content, indent = _indent) => {
-        return content.replace(new RegExp(`\n${indent}`, "g"), "\n");
+        return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "\n");
     },
     minIndent: (content, max = "        ") => {
         let baseIndent = max;
         let lines = content.split("\n");
         for (const line of lines) {
-            if (exports.emptyLineRegex.test(line))
+            if (line.length === 0 || exports.emptyLineRegex.test(line))
                 continue; // exclude empty lines
             let indent = line.match(exports.indentRegex);
             if (!indent)
                 continue;
             if (indent[0].length === 0)
                 return "";
-            baseIndent = indent[0];
+            if (indent[0].length < baseIndent.length) {
+                baseIndent = indent[0];
+            }
         }
         return baseIndent;
     },
@@ -383,4 +392,3 @@ exports.x = {
         return path_1.default.relative(from, to);
     },
 };
-exports.default = exports.x;

@@ -267,21 +267,30 @@ export const x = {
   lines(content: string) {
     return content.split("\n")
   },
+  trimEmptyLines(content: string) {
+    return content.replace(/^\s*\n/, "").replace(/\n\s*$/, "") // remove empty lines from start and end
+  },
+  removeEmptyLines(content: string) {
+    // remove each empty line
+    return content.replace(/^\s*\n/gm, "")
+  },
   addIndent: (content: string, indent = _indent) => {
     return indent + content.replace(/\n/g, "\n" + indent)
   },
   removeIndent: (content: string, indent = _indent) => {
-    return content.replace(new RegExp(`\n${indent}`, "g"), "\n")
+    return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "\n")
   },
   minIndent: (content: string, max = "        ") => {
     let baseIndent = max
     let lines = content.split("\n")
     for (const line of lines) {
-      if (emptyLineRegex.test(line)) continue // exclude empty lines
+      if (line.length === 0 || emptyLineRegex.test(line)) continue // exclude empty lines
       let indent = line.match(indentRegex)
       if (!indent) continue
       if (indent[0].length === 0) return ""
-      baseIndent = indent[0]
+      if (indent[0].length < baseIndent.length) {
+        baseIndent = indent[0]
+      }
     }
     return baseIndent
   },
@@ -366,5 +375,3 @@ export const x = {
     return nodePath.relative(from, to)
   },
 }
-
-export default x
