@@ -286,14 +286,12 @@ exports.x = {
         for (const line of lines) {
             if (exports.emptyLineRegex.test(line))
                 continue; // exclude empty lines
-            if (line[1].length < baseIndent.length) {
-                let indent = line.match(exports.indentRegex);
-                if (!indent)
-                    continue;
-                if (line[1].length === 0)
-                    return "";
-                baseIndent = line[1];
-            }
+            let indent = line.match(exports.indentRegex);
+            if (!indent)
+                continue;
+            if (indent[0].length === 0)
+                return "";
+            baseIndent = indent[0];
         }
         return baseIndent;
     },

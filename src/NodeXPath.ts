@@ -278,12 +278,10 @@ export const x = {
     let lines = content.split("\n")
     for (const line of lines) {
       if (emptyLineRegex.test(line)) continue // exclude empty lines
-      if (line[1].length < baseIndent.length) {
-        let indent = line.match(indentRegex)
-        if (!indent) continue
-        if (line[1].length === 0) return ""
-        baseIndent = line[1]
-      }
+      let indent = line.match(indentRegex)
+      if (!indent) continue
+      if (indent[0].length === 0) return ""
+      baseIndent = indent[0]
     }
     return baseIndent
   },
