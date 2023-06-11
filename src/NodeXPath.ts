@@ -275,21 +275,43 @@ export const x = {
     }
     return baseIndent
   },
-  async load(fullPath: string, { stripReturnFeed = true, defaultContent = "" }) {
+  async load(
+    fullPath: string,
+    {
+      stripReturnFeed = true,
+      defaultContent = "",
+      encoding = "utf8",
+    }: {
+      stripReturnFeed?: boolean
+      defaultContent?: string
+      encoding?: BufferEncoding
+    } = {}
+  ) {
     if (!(await fs.pathExists(fullPath))) {
       return defaultContent
     }
-    const content = await fs.readFile(fullPath, { encoding: "utf8" })
+    const content = await fs.readFile(fullPath, { encoding })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
     return content
   },
-  loadSync(fullPath: string, { stripReturnFeed = true, defaultContent = "" }) {
+  loadSync(
+    fullPath: string,
+    {
+      stripReturnFeed = true,
+      defaultContent = "",
+      encoding = "utf8",
+    }: {
+      stripReturnFeed?: boolean
+      defaultContent?: string
+      encoding?: BufferEncoding
+    } = {}
+  ) {
     if (!fs.pathExistsSync(fullPath)) {
       return defaultContent
     }
-    const content = fs.readFileSync(fullPath, { encoding: "utf8" })
+    const content = fs.readFileSync(fullPath, { encoding })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
@@ -297,12 +319,16 @@ export const x = {
   },
   async loadJson<TJson extends object>(
     fullPath: string,
-    { stripReturnFeed = true, defaultContent = {} }
+    {
+      stripReturnFeed = true,
+      defaultContent = {} as TJson,
+      encoding = "utf8",
+    }: { stripReturnFeed?: boolean; defaultContent?: TJson; encoding?: BufferEncoding } = {}
   ): Promise<TJson> {
     if (!(await fs.pathExists(fullPath))) {
       return defaultContent as TJson
     }
-    let c = await x.load(fullPath, { stripReturnFeed })
+    let c = await x.load(fullPath, { stripReturnFeed, encoding })
     try {
       return JSON.parse(c) as TJson
     } catch (e) {
@@ -310,11 +336,18 @@ export const x = {
     }
     return defaultContent as TJson
   },
-  loadJsonSync<TJson extends object>(fullPath: string, { stripReturnFeed = true, defaultContent = {} }): TJson {
+  loadJsonSync<TJson extends object>(
+    fullPath: string,
+    {
+      stripReturnFeed = true,
+      defaultContent = {} as TJson,
+      encoding = "utf8",
+    }: { stripReturnFeed?: boolean; defaultContent?: TJson; encoding?: BufferEncoding } = {}
+  ): TJson {
     if (!fs.pathExistsSync(fullPath)) {
       return defaultContent as TJson
     }
-    let c = x.loadSync(fullPath, { stripReturnFeed })
+    let c = x.loadSync(fullPath, { stripReturnFeed, encoding })
     try {
       return JSON.parse(c) as TJson
     } catch (e) {
@@ -322,11 +355,11 @@ export const x = {
     }
     return defaultContent as TJson
   },
-  async save(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
+  async save(fullPath: string, content: string, { encoding = "utf8" }: { encoding?: BufferEncoding } = {}) {
     await fs.ensureDir(nodePath.dirname(fullPath))
     await fs.writeFile(fullPath, content, { encoding })
   },
-  saveSync(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
+  saveSync(fullPath: string, content: string, { encoding = "utf8" }: { encoding?: BufferEncoding } = {}) {
     fs.ensureDirSync(nodePath.dirname(fullPath))
     fs.writeFileSync(fullPath, content, { encoding })
   },
@@ -406,23 +439,23 @@ export const x = {
     let stat = fs.statSync(fullPath)
     return stat.isDirectory()
   },
-  async children(fullPath: string) {
+  async children(fullPath: string, { encoding, recursive }: { encoding?: BufferEncoding; recursive?: boolean } = {}) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
-    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    let children = await fs.readdir(fullPath, { withFileTypes: true, recursive, encoding })
     return children
   },
-  async childDirs(fullPath: string) {
+  async childDirs(fullPath: string, { encoding, recursive }: { encoding?: BufferEncoding; recursive?: boolean } = {}) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
-    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    let children = await fs.readdir(fullPath, { withFileTypes: true, encoding, recursive })
     let dirs = children.filter((item) => item.isDirectory())
     return dirs
   },
-  async childFiles(fullPath: string) {
+  async childFiles(fullPath: string, { encoding, recursive }: { encoding?: BufferEncoding; recursive?: boolean } = {}) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
-    let children = await fs.readdir(fullPath, { withFileTypes: true })
+    let children = await fs.readdir(fullPath, { withFileTypes: true, encoding, recursive })
     let files = children.filter((item) => item.isFile())
     return files
   },

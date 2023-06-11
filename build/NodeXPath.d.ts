@@ -60,24 +60,32 @@ export declare const x: {
     addIndent: (content: string, indent?: string) => string;
     removeIndent: (content: string, indent?: string) => string;
     minIndent(content: string, max?: string): string;
-    load(fullPath: string, { stripReturnFeed, defaultContent }: {
+    load(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
         stripReturnFeed?: boolean | undefined;
         defaultContent?: string | undefined;
+        encoding?: BufferEncoding | undefined;
     }): Promise<string>;
-    loadSync(fullPath: string, { stripReturnFeed, defaultContent }: {
+    loadSync(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
         stripReturnFeed?: boolean | undefined;
         defaultContent?: string | undefined;
+        encoding?: BufferEncoding | undefined;
     }): string;
-    loadJson<TJson extends object>(fullPath: string, { stripReturnFeed, defaultContent }: {
+    loadJson<TJson extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
         stripReturnFeed?: boolean | undefined;
-        defaultContent?: {} | undefined;
+        defaultContent?: TJson | undefined;
+        encoding?: BufferEncoding | undefined;
     }): Promise<TJson>;
-    loadJsonSync<TJson_1 extends object>(fullPath: string, { stripReturnFeed, defaultContent }: {
+    loadJsonSync<TJson_1 extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
         stripReturnFeed?: boolean | undefined;
-        defaultContent?: {} | undefined;
+        defaultContent?: TJson_1 | undefined;
+        encoding?: BufferEncoding | undefined;
     }): TJson_1;
-    save(fullPath: string, content: string, encoding?: BufferEncoding): Promise<void>;
-    saveSync(fullPath: string, content: string, encoding?: BufferEncoding): void;
+    save(fullPath: string, content: string, { encoding }?: {
+        encoding?: BufferEncoding | undefined;
+    }): Promise<void>;
+    saveSync(fullPath: string, content: string, { encoding }?: {
+        encoding?: BufferEncoding | undefined;
+    }): void;
     delete(fullPath: string): Promise<void>;
     deleteSync(fullPath: string): void;
     exists(fullPath: string): Promise<boolean>;
@@ -88,8 +96,17 @@ export declare const x: {
     isFileSync(fullPath: string): boolean;
     isDir(fullPath: string): Promise<boolean>;
     isDirSync(fullPath: string): boolean;
-    children(fullPath: string): Promise<fs.Dirent[]>;
-    childDirs(fullPath: string): Promise<fs.Dirent[]>;
-    childFiles(fullPath: string): Promise<fs.Dirent[]>;
+    children(fullPath: string, { encoding, recursive }?: {
+        encoding?: BufferEncoding | undefined;
+        recursive?: boolean | undefined;
+    }): Promise<fs.Dirent[]>;
+    childDirs(fullPath: string, { encoding, recursive }?: {
+        encoding?: BufferEncoding | undefined;
+        recursive?: boolean | undefined;
+    }): Promise<fs.Dirent[]>;
+    childFiles(fullPath: string, { encoding, recursive }?: {
+        encoding?: BufferEncoding | undefined;
+        recursive?: boolean | undefined;
+    }): Promise<fs.Dirent[]>;
     relativeTo: (from: string, to: string) => string;
 };
