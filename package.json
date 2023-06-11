@@ -1,28 +1,36 @@
 {
   "name": "node-x-path",
-  "version": "0.0.27",
+  "version": "0.0.29",
   "description": "Node fs and path helpers",
   "repository": "https://github.com/alfnielsen/NodeXPath.git",
-  "author": "Alf Nielsen <alfnielsen@gmail.com>",
-  "license": "unlicense",
   "type": "module",
-  "typings": "build/NodeXPath.d.ts",
   "source": "src/NodeXPath.ts",
-  "types": "build/NodeXPath.d.ts",
-  "exports": {
-    "require": "./build/NodeXPath.cjs",
-    "default": "./build/NodeXPath.modern.js"
-  },
+  "types": "./build/NodeXPath.d.ts",
   "main": "./build/NodeXPath.cjs",
-  "module": "./build/NodeXPath.module.js",
+  "module": "./build/NodeXPath.es.js",
   "unpkg": "./build/NodeXPath.umd.js",
-  "files": [
-    "build/*"
-  ],
-  "scripts": {
-    "build": "del-cli --force ./build && tsc && microbundle --format modern,cjs,umd",
-    "publish": "yarn run build && npm publish"
+  "exports": {
+    "require": {
+      "default": "./build/NodeXPath.cjs",
+      "types": "./build/NodeXPath.d.ts"
+    },
+    "import": {
+      "default": "./build/NodeXPath.es.js",
+      "types": "./build/NodeXPath.d.ts"
+    }
   },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "microbundle",
+    "prepublishOnly": "yarn build"
+  },
+  "author": "Alf Nielsen <alfnielsen@gmail.com>",
+  "license": "MIT",
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
     "del-cli": "^5.0.0",

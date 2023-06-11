@@ -6,11 +6,7 @@ export type NodeXPathType = "file" | "dir"
 export class NodeXPath<TJson = any> {
   static sep = nodePath.sep
 
-  static async fromPath<TJson>(
-    fullPath: string,
-    loadContent = false,
-    parseJson = false,
-  ): Promise<NodeXPath<TJson>> {
+  static async fromPath<TJson>(fullPath: string, loadContent = false, parseJson = false): Promise<NodeXPath<TJson>> {
     let x = new NodeXPath()
     await x.setPath(fullPath, loadContent, parseJson)
     return x
@@ -19,7 +15,7 @@ export class NodeXPath<TJson = any> {
   static async fromPathWithContent<TJson>(
     fullPath: string,
     content: string,
-    parseJson = false,
+    parseJson = false
   ): Promise<NodeXPath<TJson>> {
     let x = new NodeXPath()
     await x.setPath(fullPath, false, false)
@@ -27,23 +23,13 @@ export class NodeXPath<TJson = any> {
     return x
   }
 
-  static async fromRelPath(
-    root: string,
-    relPath: string,
-    loadContent = false,
-    parseJson = false,
-  ) {
+  static async fromRelPath(root: string, relPath: string, loadContent = false, parseJson = false) {
     let x = new NodeXPath()
     await x.setRelPath(root, relPath, loadContent, parseJson)
     return x
   }
 
-  static async fromRelPathWithContent(
-    root: string,
-    relPath: string,
-    content: string,
-    parseJson = false,
-  ) {
+  static async fromRelPathWithContent(root: string, relPath: string, content: string, parseJson = false) {
     let x = new NodeXPath()
     await x.setRelPath(root, relPath, false, false)
     await x.setContent(content, parseJson)
@@ -84,12 +70,7 @@ export class NodeXPath<TJson = any> {
     return this
   }
 
-  async setRelPath(
-    root: string,
-    relPath: string,
-    loadContent = false,
-    parseJson = false,
-  ) {
+  async setRelPath(root: string, relPath: string, loadContent = false, parseJson = false) {
     this.fullPath = nodePath.join(root, relPath)
     await this.setPath(this.fullPath, loadContent, parseJson)
     return this
@@ -280,7 +261,7 @@ export const x = {
   removeIndent: (content: string, indent = _indent) => {
     return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "$1")
   },
-  minIndent: (content: string, max = "        ") => {
+  minIndent(content: string, max = "        ") {
     let baseIndent = max
     let lines = content.split("\n")
     for (const line of lines) {
@@ -294,14 +275,14 @@ export const x = {
     }
     return baseIndent
   },
-  load: async (fullPath: string, stripReturnFeed = true) => {
+  async load(fullPath: string, stripReturnFeed = true) {
     const content = await fs.readFile(fullPath, { encoding: "utf8" })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
     return content
   },
-  loadJson: async <TJson>(fullPath: string, stripReturnFeed = true) => {
+  async loadJson<TJson>(fullPath: string, stripReturnFeed = true) {
     let c = await x.load(fullPath, stripReturnFeed)
     try {
       return JSON.parse(c) as TJson
@@ -309,19 +290,19 @@ export const x = {
       console.log?.("NodeXPath - loadJson SyntaxError:", e)
     }
   },
-  save: async (fullPath: string, content: string, encoding: BufferEncoding = "utf8") => {
+  async save(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
     await fs.ensureDir(nodePath.dirname(fullPath))
     await fs.writeFile(fullPath, content, { encoding })
   },
-  delete: async (fullPath: string) => {
+  async delete(fullPath: string) {
     if (await fs.pathExists(fullPath)) {
       await fs.remove(fullPath)
     }
   },
-  exists: async (fullPath: string) => {
+  async exists(fullPath: string) {
     return await fs.pathExists(fullPath)
   },
-  ensureDir: async (fullPath: string) => {
+  async ensureDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     let dir = fullPath
     if (exists) {
@@ -339,32 +320,32 @@ export const x = {
     }
     await fs.ensureDir(dir)
   },
-  isFile: async (fullPath: string) => {
+  async isFile(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
     return stat.isFile()
   },
-  isDir: async (fullPath: string) => {
+  async isDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
     return stat.isDirectory()
   },
-  children: async (fullPath: string) => {
+  async children(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
     return children
   },
-  childDirs: async (fullPath: string) => {
+  async childDirs(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
     let dirs = children.filter((item) => item.isDirectory())
     return dirs
   },
-  childFiles: async (fullPath: string) => {
+  async childFiles(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
