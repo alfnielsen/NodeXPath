@@ -60,10 +60,22 @@ export declare const x: {
     addIndent: (content: string, indent?: string) => string;
     removeIndent: (content: string, indent?: string) => string;
     minIndent(content: string, max?: string): string;
-    load(fullPath: string, stripReturnFeed?: boolean): Promise<string>;
-    loadSync(fullPath: string, stripReturnFeed?: boolean): string;
-    loadJson<TJson>(fullPath: string, stripReturnFeed?: boolean): Promise<TJson | undefined>;
-    loadJsonSync<TJson_1>(fullPath: string, stripReturnFeed?: boolean): TJson_1 | undefined;
+    load(fullPath: string, { stripReturnFeed, defaultContent }: {
+        stripReturnFeed?: boolean | undefined;
+        defaultContent?: string | undefined;
+    }): Promise<string>;
+    loadSync(fullPath: string, { stripReturnFeed, defaultContent }: {
+        stripReturnFeed?: boolean | undefined;
+        defaultContent?: string | undefined;
+    }): string;
+    loadJson<TJson extends object>(fullPath: string, { stripReturnFeed, defaultContent }: {
+        stripReturnFeed?: boolean | undefined;
+        defaultContent?: {} | undefined;
+    }): Promise<TJson>;
+    loadJsonSync<TJson_1 extends object>(fullPath: string, { stripReturnFeed, defaultContent }: {
+        stripReturnFeed?: boolean | undefined;
+        defaultContent?: {} | undefined;
+    }): TJson_1;
     save(fullPath: string, content: string, encoding?: BufferEncoding): Promise<void>;
     saveSync(fullPath: string, content: string, encoding?: BufferEncoding): void;
     delete(fullPath: string): Promise<void>;

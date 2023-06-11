@@ -275,35 +275,52 @@ export const x = {
     }
     return baseIndent
   },
-  async load(fullPath: string, stripReturnFeed = true) {
+  async load(fullPath: string, { stripReturnFeed = true, defaultContent = "" }) {
+    if (!(await fs.pathExists(fullPath))) {
+      return defaultContent
+    }
     const content = await fs.readFile(fullPath, { encoding: "utf8" })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
     return content
   },
-  loadSync(fullPath: string, stripReturnFeed = true) {
+  loadSync(fullPath: string, { stripReturnFeed = true, defaultContent = "" }) {
+    if (!fs.pathExistsSync(fullPath)) {
+      return defaultContent
+    }
     const content = fs.readFileSync(fullPath, { encoding: "utf8" })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
     return content
   },
-  async loadJson<TJson>(fullPath: string, stripReturnFeed = true) {
-    let c = await x.load(fullPath, stripReturnFeed)
+  async loadJson<TJson extends object>(
+    fullPath: string,
+    { stripReturnFeed = true, defaultContent = {} }
+  ): Promise<TJson> {
+    if (!(await fs.pathExists(fullPath))) {
+      return defaultContent as TJson
+    }
+    let c = await x.load(fullPath, { stripReturnFeed })
     try {
       return JSON.parse(c) as TJson
     } catch (e) {
       console.log?.("NodeXPath - loadJson SyntaxError:", e)
     }
+    return defaultContent as TJson
   },
-  loadJsonSync<TJson>(fullPath: string, stripReturnFeed = true) {
-    let c = x.loadSync(fullPath, stripReturnFeed)
+  loadJsonSync<TJson extends object>(fullPath: string, { stripReturnFeed = true, defaultContent = {} }): TJson {
+    if (!fs.pathExistsSync(fullPath)) {
+      return defaultContent as TJson
+    }
+    let c = x.loadSync(fullPath, { stripReturnFeed })
     try {
       return JSON.parse(c) as TJson
     } catch (e) {
       console.log?.("NodeXPath - loadJson SyntaxError:", e)
     }
+    return defaultContent as TJson
   },
   async save(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
     await fs.ensureDir(nodePath.dirname(fullPath))
