@@ -1,6 +1,6 @@
 {
   "name": "node-x-path",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "description": "Node fs and path helpers",
   "repository": "https://github.com/alfnielsen/NodeXPath.git",
   "type": "module",

@@ -282,8 +282,23 @@ export const x = {
     }
     return content
   },
+  loadSync(fullPath: string, stripReturnFeed = true) {
+    const content = fs.readFileSync(fullPath, { encoding: "utf8" })
+    if (stripReturnFeed) {
+      return content.replace(/\r\n/g, "\n")
+    }
+    return content
+  },
   async loadJson<TJson>(fullPath: string, stripReturnFeed = true) {
     let c = await x.load(fullPath, stripReturnFeed)
+    try {
+      return JSON.parse(c) as TJson
+    } catch (e) {
+      console.log?.("NodeXPath - loadJson SyntaxError:", e)
+    }
+  },
+  loadJsonSync<TJson>(fullPath: string, stripReturnFeed = true) {
+    let c = x.loadSync(fullPath, stripReturnFeed)
     try {
       return JSON.parse(c) as TJson
     } catch (e) {
@@ -294,13 +309,25 @@ export const x = {
     await fs.ensureDir(nodePath.dirname(fullPath))
     await fs.writeFile(fullPath, content, { encoding })
   },
+  saveSync(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
+    fs.ensureDirSync(nodePath.dirname(fullPath))
+    fs.writeFileSync(fullPath, content, { encoding })
+  },
   async delete(fullPath: string) {
     if (await fs.pathExists(fullPath)) {
       await fs.remove(fullPath)
     }
   },
+  deleteSync(fullPath: string) {
+    if (fs.pathExistsSync(fullPath)) {
+      fs.removeSync(fullPath)
+    }
+  },
   async exists(fullPath: string) {
     return await fs.pathExists(fullPath)
+  },
+  existsSync(fullPath: string) {
+    return fs.pathExistsSync(fullPath)
   },
   async ensureDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
@@ -320,16 +347,46 @@ export const x = {
     }
     await fs.ensureDir(dir)
   },
+  ensureDirSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    let dir = fullPath
+    if (exists) {
+      let stat = fs.statSync(fullPath)
+      let isFile = stat.isFile()
+      if (isFile) {
+        dir = nodePath.dirname(fullPath)
+      }
+      fs.ensureDirSync(dir)
+      return
+    }
+    let p = nodePath.parse(fullPath)
+    if (p.ext) {
+      dir = nodePath.dirname(fullPath)
+    }
+    fs.ensureDirSync(dir)
+  },
   async isFile(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
     return stat.isFile()
   },
+  isFileSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    if (!exists) return false
+    let stat = fs.statSync(fullPath)
+    return stat.isFile()
+  },
   async isDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
+    return stat.isDirectory()
+  },
+  isDirSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    if (!exists) return false
+    let stat = fs.statSync(fullPath)
     return stat.isDirectory()
   },
   async children(fullPath: string) {

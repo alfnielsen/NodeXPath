@@ -15,6 +15,7 @@ Code:
 ```ts
 // (... Class version ...)
 
+
 export const x = {
   fromPath: NodeXPath.fromPath,
   fromPathWithContent: NodeXPath.fromPathWithContent,
@@ -29,19 +30,19 @@ export const x = {
     return content.split("\n")
   },
   trimEmptyLines(content: string) {
-    return content.replace(/^\s*\n/, "").replace(/\n\s*$/, "") // remove empty lines from start and end
+    return content.replace(/^(\s*\n)+/, "").replace(/(\n\s*)+$/, "") // remove empty lines from start and end
   },
   removeEmptyLines(content: string) {
     // remove each empty line
     return content.replace(/^\s*\n/gm, "")
   },
   addIndent: (content: string, indent = _indent) => {
-    return indent + content.replace(/\n/g, "\n" + indent)
+    return content.replace(/(^|\n)/g, `$1${indent}`)
   },
   removeIndent: (content: string, indent = _indent) => {
-    return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "\n")
+    return content.replace(new RegExp(`(^|\n)${indent}`, "g"), "$1")
   },
-  minIndent: (content: string, max = "        ") => {
+  minIndent(content: string, max = "        ") {
     let baseIndent = max
     let lines = content.split("\n")
     for (const line of lines) {
@@ -55,14 +56,21 @@ export const x = {
     }
     return baseIndent
   },
-  load: async (fullPath: string, stripReturnFeed = true) => {
+  async load(fullPath: string, stripReturnFeed = true) {
     const content = await fs.readFile(fullPath, { encoding: "utf8" })
     if (stripReturnFeed) {
       return content.replace(/\r\n/g, "\n")
     }
     return content
   },
-  loadJson: async <TJson>(fullPath: string, stripReturnFeed = true) => {
+  loadSync(fullPath: string, stripReturnFeed = true) {
+    const content = fs.readFileSync(fullPath, { encoding: "utf8" })
+    if (stripReturnFeed) {
+      return content.replace(/\r\n/g, "\n")
+    }
+    return content
+  },
+  async loadJson<TJson>(fullPath: string, stripReturnFeed = true) {
     let c = await x.load(fullPath, stripReturnFeed)
     try {
       return JSON.parse(c) as TJson
@@ -70,19 +78,39 @@ export const x = {
       console.log?.("NodeXPath - loadJson SyntaxError:", e)
     }
   },
-  save: async (fullPath: string, content: string, encoding: BufferEncoding = "utf8") => {
+  loadJsonSync<TJson>(fullPath: string, stripReturnFeed = true) {
+    let c = x.loadSync(fullPath, stripReturnFeed)
+    try {
+      return JSON.parse(c) as TJson
+    } catch (e) {
+      console.log?.("NodeXPath - loadJson SyntaxError:", e)
+    }
+  },
+  async save(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
     await fs.ensureDir(nodePath.dirname(fullPath))
     await fs.writeFile(fullPath, content, { encoding })
   },
-  delete: async (fullPath: string) => {
+  saveSync(fullPath: string, content: string, encoding: BufferEncoding = "utf8") {
+    fs.ensureDirSync(nodePath.dirname(fullPath))
+    fs.writeFileSync(fullPath, content, { encoding })
+  },
+  async delete(fullPath: string) {
     if (await fs.pathExists(fullPath)) {
       await fs.remove(fullPath)
     }
   },
-  exists: async (fullPath: string) => {
+  deleteSync(fullPath: string) {
+    if (fs.pathExistsSync(fullPath)) {
+      fs.removeSync(fullPath)
+    }
+  },
+  async exists(fullPath: string) {
     return await fs.pathExists(fullPath)
   },
-  ensureDir: async (fullPath: string) => {
+  existsSync(fullPath: string) {
+    return fs.pathExistsSync(fullPath)
+  },
+  async ensureDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     let dir = fullPath
     if (exists) {
@@ -100,32 +128,62 @@ export const x = {
     }
     await fs.ensureDir(dir)
   },
-  isFile: async (fullPath: string) => {
+  ensureDirSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    let dir = fullPath
+    if (exists) {
+      let stat = fs.statSync(fullPath)
+      let isFile = stat.isFile()
+      if (isFile) {
+        dir = nodePath.dirname(fullPath)
+      }
+      fs.ensureDirSync(dir)
+      return
+    }
+    let p = nodePath.parse(fullPath)
+    if (p.ext) {
+      dir = nodePath.dirname(fullPath)
+    }
+    fs.ensureDirSync(dir)
+  },
+  async isFile(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
     return stat.isFile()
   },
-  isDir: async (fullPath: string) => {
+  isFileSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    if (!exists) return false
+    let stat = fs.statSync(fullPath)
+    return stat.isFile()
+  },
+  async isDir(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return false
     let stat = await fs.stat(fullPath)
     return stat.isDirectory()
   },
-  children: async (fullPath: string) => {
+  isDirSync(fullPath: string) {
+    let exists = fs.pathExistsSync(fullPath)
+    if (!exists) return false
+    let stat = fs.statSync(fullPath)
+    return stat.isDirectory()
+  },
+  async children(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
     return children
   },
-  childDirs: async (fullPath: string) => {
+  async childDirs(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
     let dirs = children.filter((item) => item.isDirectory())
     return dirs
   },
-  childFiles: async (fullPath: string) => {
+  async childFiles(fullPath: string) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true })
