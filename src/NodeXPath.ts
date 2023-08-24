@@ -249,19 +249,6 @@ export enum FileSearchType {
   contains = "contains",
 }
 
-export type ConstructGlobPatternOptions = {
-  /** string to search for (using the defined searchType)  */
-  term?: string | string[]
-  /** default is 'conrains'  */
-  searchType?: FileSearchType
-  /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
-  multiplePreExtensions?: boolean
-  /** file extention */
-  ext?: string
-  /** [default = true] most have an extention (most files have - can be used to sort out folders) */
-  mustHaveExt?: string
-}
-
 export type GlobSearchOptions = {
   /** ignore patterns (default: ["**\/bin\/**", "**\/node_modules\/**", "**\/obj\/**"]) */
   ignore?: string[]
@@ -277,21 +264,37 @@ export type GlobSearchOptions = {
   fullPaths?: boolean
 }
 
+export type SearchOptions = {
+  /** Filter the search (glob) by match of file content (RegExp or contain string) */
+  match?: string | RegExp
+  /** Filter the search (glob) by match of file path (RegExp or contain string) */
+  pathMatch?: string | RegExp
+}
+
+export type SearchResult = {
+  path: string
+  content: string
+}
+export type SearchJsonResult<T extends object = object> = {
+  path: string
+  json: T
+}
+
 export type GlobPatternOptions = {
   /** string to search for (using the defined searchType)  */
   term?: string | string[]
   /** default is 'conrains'  */
   searchType?: FileSearchType
   /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
-  multiplePreExtensions?: boolean
+  allowMultipleExt?: boolean
   /** file extention */
-  ext?: string
+  ext?: string | string[]
   /** [default = true] most have an extention (most files have - can be used to sort out folders) */
   mustHaveExt?: string
 }
 
-export const constructGlobPattern = (options: ConstructGlobPatternOptions = {}) => {
-  const { term, ext, mustHaveExt = true, searchType = FileSearchType.contains, multiplePreExtensions = false } = options
+export const constructGlobPattern = (options: GlobPatternOptions = {}) => {
+  const { term, ext, mustHaveExt = true, searchType = FileSearchType.contains, allowMultipleExt = false } = options
   let pattern = `**/`
   switch (searchType) {
     case FileSearchType.exact:
@@ -307,11 +310,15 @@ export const constructGlobPattern = (options: ConstructGlobPatternOptions = {}) 
       pattern += `*${term}*`
       break
   }
-  if (multiplePreExtensions) {
+  if (allowMultipleExt) {
     pattern += `?(.!(.))`
   }
   if (ext) {
-    pattern += `.${ext}`
+    if (Array.isArray(ext)) {
+      pattern += `.+(${ext.join("|")})`
+    } else {
+      pattern += `.${ext}`
+    }
   }
   if (mustHaveExt && !ext) {
     pattern += `.*`
@@ -327,6 +334,7 @@ export const x = {
   sep: nodePath.sep,
   processCwd,
   standardGlobIngorePattern,
+  /** Wrap on glob search */
   async glob(pattern: string, options?: GlobSearchOptions) {
     let {
       ignore = standardGlobIngorePattern,
@@ -351,7 +359,7 @@ export const x = {
     return result
   },
   /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-  async search(options?: ConstructGlobPatternOptions & GlobSearchOptions) {
+  async searchPath(options?: GlobPatternOptions & GlobSearchOptions) {
     const {
       addIgnore,
       ignore = standardGlobIngorePattern,
@@ -370,6 +378,56 @@ export const x = {
       addIgnore,
       fullPaths,
     })
+  },
+  /** Search for files. Return path and content (using searchPath) */
+  async search(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions) {
+    const { match, pathMatch, ...searchOptions } = options ?? {}
+    const filePaths = await x.searchPath({ ...searchOptions })
+    const matchRegex = match ? new RegExp(match) : undefined
+    const pathMatchRegex = pathMatch ? new RegExp(pathMatch) : undefined
+    let results: SearchResult[] = []
+    for (const filePath of filePaths) {
+      let content = await x.load(filePath)
+      if (matchRegex && !matchRegex.test(content)) continue
+      if (pathMatchRegex && !pathMatchRegex.test(filePath)) continue
+      results.push({ path: filePath, content })
+    }
+    return results
+  },
+  /** Search for json files. Return path and json  (using search)*/
+  async searchJson<T extends object = object>(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions) {
+    const { ext = "json" } = options ?? {}
+    const searchResults = await x.search({ ...options, ext })
+    let results: SearchJsonResult<T>[] = []
+    for (const searchResult of searchResults) {
+      let json = x.parseJson<T>(searchResult.content)
+      if (!json) continue
+      results.push({ path: searchResult.path, json })
+    }
+    return results
+  },
+  /** Search for one file. Return path (using searchPath)*/
+  async findPath(options?: GlobPatternOptions & GlobSearchOptions): Promise<string | undefined> {
+    const paths = await x.searchPath(options)
+    return paths?.[0]
+  },
+  /** Search for one file. Return path and content (using findPath)*/
+  async find(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions): Promise<SearchResult | undefined> {
+    const path = await x.findPath(options)
+    if (!path) return undefined
+    const content = await x.load(path)
+    return { path, content }
+  },
+  /** Search for one json file. Return path and json (uses find)*/
+  async findJson<T extends object = object>(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions) {
+    const { ext = "json" } = options ?? {}
+    const searchResult = await x.find({ ...options, ext })
+    if (!searchResult) return undefined
+    let results: SearchJsonResult<T>[] = []
+    let json = x.parseJson<T>(searchResult.content)
+    if (!json) return undefined
+    results.push({ path: searchResult.path, json })
+    return results
   },
   filename(fullPath: string) {
     return nodePath.basename(fullPath)
@@ -453,6 +511,17 @@ export const x = {
     }
     return content
   },
+  parseJson<TJson>(content: string) {
+    try {
+      return JSON.parse(content) as TJson
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        console.log?.("NodeXPath - ParseJson SyntaxError:\n", e, content)
+      } else {
+        console.log?.("NodeXPath - ParseJson ParseError:", e)
+      }
+    }
+  },
   async loadJson<TJson extends object>(
     fullPath: string,
     {
@@ -465,12 +534,7 @@ export const x = {
       return defaultContent as TJson
     }
     let c = await x.load(fullPath, { stripReturnFeed, encoding })
-    try {
-      return JSON.parse(c) as TJson
-    } catch (e) {
-      console.log?.("NodeXPath - loadJson SyntaxError:", e)
-    }
-    return defaultContent as TJson
+    return x.parseJson<TJson>(c) ?? defaultContent
   },
   loadJsonSync<TJson extends object>(
     fullPath: string,

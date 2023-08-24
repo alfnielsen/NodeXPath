@@ -59,18 +59,6 @@ export declare enum FileSearchType {
     /** Search for a file with the name containing the search term */
     contains = "contains"
 }
-export type ConstructGlobPatternOptions = {
-    /** string to search for (using the defined searchType)  */
-    term?: string | string[];
-    /** default is 'conrains'  */
-    searchType?: FileSearchType;
-    /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
-    multiplePreExtensions?: boolean;
-    /** file extention */
-    ext?: string;
-    /** [default = true] most have an extention (most files have - can be used to sort out folders) */
-    mustHaveExt?: string;
-};
 export type GlobSearchOptions = {
     /** ignore patterns (default: ["**\/bin\/**", "**\/node_modules\/**", "**\/obj\/**"]) */
     ignore?: string[];
@@ -85,19 +73,33 @@ export type GlobSearchOptions = {
     /** Return full path instead of sub-path from cwd (default: true) */
     fullPaths?: boolean;
 };
+export type SearchOptions = {
+    /** Filter the search (glob) by match of file content (RegExp or contain string) */
+    match?: string | RegExp;
+    /** Filter the search (glob) by match of file path (RegExp or contain string) */
+    pathMatch?: string | RegExp;
+};
+export type SearchResult = {
+    path: string;
+    content: string;
+};
+export type SearchJsonResult<T extends object = object> = {
+    path: string;
+    json: T;
+};
 export type GlobPatternOptions = {
     /** string to search for (using the defined searchType)  */
     term?: string | string[];
     /** default is 'conrains'  */
     searchType?: FileSearchType;
     /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
-    multiplePreExtensions?: boolean;
+    allowMultipleExt?: boolean;
     /** file extention */
-    ext?: string;
+    ext?: string | string[];
     /** [default = true] most have an extention (most files have - can be used to sort out folders) */
     mustHaveExt?: string;
 };
-export declare const constructGlobPattern: (options?: ConstructGlobPatternOptions) => string;
+export declare const constructGlobPattern: (options?: GlobPatternOptions) => string;
 export declare const x: {
     fromPath: typeof NodeXPath.fromPath;
     fromPathWithContent: typeof NodeXPath.fromPathWithContent;
@@ -106,9 +108,20 @@ export declare const x: {
     sep: "\\" | "/";
     processCwd: string;
     standardGlobIngorePattern: string[];
+    /** Wrap on glob search */
     glob(pattern: string, options?: GlobSearchOptions): Promise<string[]>;
     /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-    search(options?: ConstructGlobPatternOptions & GlobSearchOptions): Promise<string[]>;
+    searchPath(options?: GlobPatternOptions & GlobSearchOptions): Promise<string[]>;
+    /** Search for files. Return path and content (using searchPath) */
+    search(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions): Promise<SearchResult[]>;
+    /** Search for json files. Return path and json  (using search)*/
+    searchJson<T extends object = object>(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions): Promise<SearchJsonResult<T>[]>;
+    /** Search for one file. Return path (using searchPath)*/
+    findPath(options?: GlobPatternOptions & GlobSearchOptions): Promise<string | undefined>;
+    /** Search for one file. Return path and content (using findPath)*/
+    find(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions): Promise<SearchResult | undefined>;
+    /** Search for one json file. Return path and json (uses find)*/
+    findJson<T_1 extends object = object>(options?: GlobPatternOptions & GlobSearchOptions & SearchOptions): Promise<SearchJsonResult<T_1>[] | undefined>;
     filename(fullPath: string): string;
     dir(fullPath: string): string;
     join(...paths: string[]): string;
@@ -128,16 +141,17 @@ export declare const x: {
         defaultContent?: string | undefined;
         encoding?: BufferEncoding | undefined;
     }): string;
-    loadJson<TJson extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
-        stripReturnFeed?: boolean | undefined;
-        defaultContent?: TJson | undefined;
-        encoding?: BufferEncoding | undefined;
-    }): Promise<TJson>;
-    loadJsonSync<TJson_1 extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
+    parseJson<TJson>(content: string): TJson | undefined;
+    loadJson<TJson_1 extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
         stripReturnFeed?: boolean | undefined;
         defaultContent?: TJson_1 | undefined;
         encoding?: BufferEncoding | undefined;
-    }): TJson_1;
+    }): Promise<TJson_1>;
+    loadJsonSync<TJson_2 extends object>(fullPath: string, { stripReturnFeed, defaultContent, encoding, }?: {
+        stripReturnFeed?: boolean | undefined;
+        defaultContent?: TJson_2 | undefined;
+        encoding?: BufferEncoding | undefined;
+    }): TJson_2;
     save(fullPath: string, content: string, { encoding }?: {
         encoding?: BufferEncoding | undefined;
     }): Promise<void>;
