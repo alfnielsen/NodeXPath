@@ -249,7 +249,7 @@ export enum FileSearchType {
   contains = "contains",
 }
 
-export type constructGlobPatternOptions = {
+export type ConstructGlobPatternOptions = {
   /** string to search for (using the defined searchType)  */
   term?: string | string[]
   /** default is 'conrains'  */
@@ -262,7 +262,22 @@ export type constructGlobPatternOptions = {
   mustHaveExt?: string
 }
 
-export type globPatternOptions = {
+export type GlobSearchOptions = {
+  /** ignore patterns (default: ["**\/bin\/**", "**\/node_modules\/**", "**\/obj\/**"]) */
+  ignore?: string[]
+  /** current working directory (root for search) (default: process.cwd()) */
+  cwd?: string
+  /** Use case-insensitive match (default: true) */
+  nocase?: boolean
+  /** Include files staring with dot */
+  dot?: boolean
+  /** Add ignore patterns to default ignore patterns */
+  addIgnore?: string[]
+  /** Return full path instead of sub-path from cwd (default: true) */
+  fullPaths?: boolean
+}
+
+export type GlobPatternOptions = {
   /** string to search for (using the defined searchType)  */
   term?: string | string[]
   /** default is 'conrains'  */
@@ -275,7 +290,7 @@ export type globPatternOptions = {
   mustHaveExt?: string
 }
 
-export const constructGlobPattern = (options: constructGlobPatternOptions = {}) => {
+export const constructGlobPattern = (options: ConstructGlobPatternOptions = {}) => {
   const { term, ext, mustHaveExt = true, searchType = FileSearchType.contains, multiplePreExtensions = false } = options
   let pattern = `**/`
   switch (searchType) {
@@ -312,39 +327,48 @@ export const x = {
   sep: nodePath.sep,
   processCwd,
   standardGlobIngorePattern,
-  async glob(
-    pattern: string,
-    { ignore = standardGlobIngorePattern, cwd = processCwd, nocase = true, dot = true } = {}
-  ) {
-    return await glob.glob(pattern, {
+  async glob(pattern: string, options?: GlobSearchOptions) {
+    let {
+      ignore = standardGlobIngorePattern,
+      cwd = processCwd,
+      nocase = true,
+      dot = true,
+      addIgnore,
+      fullPaths,
+    } = options ?? {}
+    if (addIgnore) {
+      ignore = [...ignore, ...addIgnore]
+    }
+    let result = await glob.glob(pattern, {
       ignore,
       cwd,
       nocase,
       dot,
     })
+    if (fullPaths) {
+      result = result.map(item => nodePath.join(cwd, item))
+    }
+    return result
   },
   /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-  async search(
-    options?: constructGlobPatternOptions & {
-      ignore?: string[]
-      cwd?: string
-      nocase?: boolean
-      dot?: boolean
-    }
-  ) {
+  async search(options?: ConstructGlobPatternOptions & GlobSearchOptions) {
     const {
       ignore = standardGlobIngorePattern,
       cwd = processCwd,
       nocase = true,
       dot = true,
+      addIgnore,
+      fullPaths,
       ...searchOptions
     } = options ?? {}
     const pattern = constructGlobPattern({ ...searchOptions })
-    return await glob.glob(pattern, {
+    return await x.glob(pattern, {
       ignore,
       cwd,
       nocase,
       dot,
+      addIgnore,
+      fullPaths,
     })
   },
   filename(fullPath: string) {

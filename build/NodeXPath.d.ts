@@ -59,7 +59,7 @@ export declare enum FileSearchType {
     /** Search for a file with the name containing the search term */
     contains = "contains"
 }
-export type constructGlobPatternOptions = {
+export type ConstructGlobPatternOptions = {
     /** string to search for (using the defined searchType)  */
     term?: string | string[];
     /** default is 'conrains'  */
@@ -71,7 +71,21 @@ export type constructGlobPatternOptions = {
     /** [default = true] most have an extention (most files have - can be used to sort out folders) */
     mustHaveExt?: string;
 };
-export type globPatternOptions = {
+export type GlobSearchOptions = {
+    /** ignore patterns (default: ["**\/bin\/**", "**\/node_modules\/**", "**\/obj\/**"]) */
+    ignore?: string[];
+    /** current working directory (root for search) (default: process.cwd()) */
+    cwd?: string;
+    /** Use case-insensitive match (default: true) */
+    nocase?: boolean;
+    /** Include files staring with dot */
+    dot?: boolean;
+    /** Add ignore patterns to default ignore patterns */
+    addIgnore?: string[];
+    /** Return full path instead of sub-path from cwd (default: true) */
+    fullPaths?: boolean;
+};
+export type GlobPatternOptions = {
     /** string to search for (using the defined searchType)  */
     term?: string | string[];
     /** default is 'conrains'  */
@@ -83,7 +97,7 @@ export type globPatternOptions = {
     /** [default = true] most have an extention (most files have - can be used to sort out folders) */
     mustHaveExt?: string;
 };
-export declare const constructGlobPattern: (options?: constructGlobPatternOptions) => string;
+export declare const constructGlobPattern: (options?: ConstructGlobPatternOptions) => string;
 export declare const x: {
     fromPath: typeof NodeXPath.fromPath;
     fromPathWithContent: typeof NodeXPath.fromPathWithContent;
@@ -92,19 +106,9 @@ export declare const x: {
     sep: "\\" | "/";
     processCwd: string;
     standardGlobIngorePattern: string[];
-    glob(pattern: string, { ignore, cwd, nocase, dot }?: {
-        ignore?: string[] | undefined;
-        cwd?: string | undefined;
-        nocase?: boolean | undefined;
-        dot?: boolean | undefined;
-    }): Promise<string[]>;
+    glob(pattern: string, options?: GlobSearchOptions): Promise<string[]>;
     /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-    search(options?: constructGlobPatternOptions & {
-        ignore?: string[];
-        cwd?: string;
-        nocase?: boolean;
-        dot?: boolean;
-    }): Promise<string[]>;
+    search(options?: ConstructGlobPatternOptions & GlobSearchOptions): Promise<string[]>;
     filename(fullPath: string): string;
     dir(fullPath: string): string;
     join(...paths: string[]): string;
