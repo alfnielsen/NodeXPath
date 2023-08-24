@@ -1,6 +1,6 @@
 {
   "name": "node-x-path",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Node files helper (include extended fs, path and glob)",
   "repository": "https://github.com/alfnielsen/NodeXPath.git",
   "type": "module",

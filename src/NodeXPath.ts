@@ -353,12 +353,12 @@ export const x = {
   /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
   async search(options?: ConstructGlobPatternOptions & GlobSearchOptions) {
     const {
+      addIgnore,
       ignore = standardGlobIngorePattern,
       cwd = processCwd,
       nocase = true,
       dot = true,
-      addIgnore,
-      fullPaths,
+      fullPaths = true,
       ...searchOptions
     } = options ?? {}
     const pattern = constructGlobPattern({ ...searchOptions })
