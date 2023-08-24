@@ -61,13 +61,27 @@ export declare enum FileSearchType {
 }
 export type constructGlobPatternOptions = {
     /** string to search for (using the defined searchType)  */
-    searchTerm?: string | string[];
+    term?: string | string[];
     /** default is 'conrains'  */
     searchType?: FileSearchType;
     /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
     multiplePreExtensions?: boolean;
     /** file extention */
-    ext?: string | string[];
+    ext?: string;
+    /** [default = true] most have an extention (most files have - can be used to sort out folders) */
+    mustHaveExt?: string;
+};
+export type globPatternOptions = {
+    /** string to search for (using the defined searchType)  */
+    term?: string | string[];
+    /** default is 'conrains'  */
+    searchType?: FileSearchType;
+    /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
+    multiplePreExtensions?: boolean;
+    /** file extention */
+    ext?: string;
+    /** [default = true] most have an extention (most files have - can be used to sort out folders) */
+    mustHaveExt?: string;
 };
 export declare const constructGlobPattern: (options?: constructGlobPatternOptions) => string;
 export declare const x: {
@@ -85,7 +99,7 @@ export declare const x: {
         dot?: boolean | undefined;
     }): Promise<string[]>;
     /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-    searchFileName(options?: constructGlobPatternOptions & {
+    search(options?: constructGlobPatternOptions & {
         ignore?: string[];
         cwd?: string;
         nocase?: boolean;

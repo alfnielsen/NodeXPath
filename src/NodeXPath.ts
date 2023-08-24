@@ -1,6 +1,6 @@
 import fs from "fs-extra"
 import nodePath from "path"
-import glob, { Glob } from "glob-promise"
+import { glob } from "glob-promise"
 
 export type NodeXPathType = "file" | "dir"
 
@@ -251,30 +251,45 @@ export enum FileSearchType {
 
 export type constructGlobPatternOptions = {
   /** string to search for (using the defined searchType)  */
-  searchTerm?: string | string[]
+  term?: string | string[]
   /** default is 'conrains'  */
   searchType?: FileSearchType
   /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
   multiplePreExtensions?: boolean
   /** file extention */
-  ext?: string | string[]
+  ext?: string
+  /** [default = true] most have an extention (most files have - can be used to sort out folders) */
+  mustHaveExt?: string
+}
+
+export type globPatternOptions = {
+  /** string to search for (using the defined searchType)  */
+  term?: string | string[]
+  /** default is 'conrains'  */
+  searchType?: FileSearchType
+  /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
+  multiplePreExtensions?: boolean
+  /** file extention */
+  ext?: string
+  /** [default = true] most have an extention (most files have - can be used to sort out folders) */
+  mustHaveExt?: string
 }
 
 export const constructGlobPattern = (options: constructGlobPatternOptions = {}) => {
-  const { searchTerm, ext, searchType = FileSearchType.contains, multiplePreExtensions = false } = options
+  const { term, ext, mustHaveExt = true, searchType = FileSearchType.contains, multiplePreExtensions = false } = options
   let pattern = `**/`
   switch (searchType) {
     case FileSearchType.exact:
-      pattern += `${searchTerm}`
+      pattern += `${term}`
       break
     case FileSearchType.start:
-      pattern += `${searchTerm}*`
+      pattern += `${term}*`
       break
     case FileSearchType.end:
-      pattern += `*${searchTerm}`
+      pattern += `*${term}`
       break
     case FileSearchType.contains:
-      pattern += `*${searchTerm}*`
+      pattern += `*${term}*`
       break
   }
   if (multiplePreExtensions) {
@@ -282,6 +297,9 @@ export const constructGlobPattern = (options: constructGlobPatternOptions = {}) 
   }
   if (ext) {
     pattern += `.${ext}`
+  }
+  if (mustHaveExt && !ext) {
+    pattern += `.*`
   }
   return pattern
 }
@@ -298,7 +316,7 @@ export const x = {
     pattern: string,
     { ignore = standardGlobIngorePattern, cwd = processCwd, nocase = true, dot = true } = {}
   ) {
-    return await glob(pattern, {
+    return await glob.glob(pattern, {
       ignore,
       cwd,
       nocase,
@@ -306,17 +324,23 @@ export const x = {
     })
   },
   /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
-  async searchFileName(
-    options: constructGlobPatternOptions & {
+  async search(
+    options?: constructGlobPatternOptions & {
       ignore?: string[]
       cwd?: string
       nocase?: boolean
       dot?: boolean
-    } = {}
+    }
   ) {
-    const { ignore, cwd, nocase, dot, ...searchOptions } = options
+    const {
+      ignore = standardGlobIngorePattern,
+      cwd = processCwd,
+      nocase = true,
+      dot = true,
+      ...searchOptions
+    } = options ?? {}
     const pattern = constructGlobPattern({ ...searchOptions })
-    return await glob(pattern, {
+    return await glob.glob(pattern, {
       ignore,
       cwd,
       nocase,
