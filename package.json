@@ -1,7 +1,7 @@
 {
   "name": "node-x-path",
   "version": "0.0.32",
-  "description": "Node fs and path helpers",
+  "description": "Node files helper (include extended fs, path and glob)",
   "repository": "https://github.com/alfnielsen/NodeXPath.git",
   "type": "module",
   "source": "src/NodeXPath.ts",
@@ -35,5 +35,9 @@
     "@types/fs-extra": "^11.0.1",
     "del-cli": "^5.0.0",
     "microbundle": "^0.15.1"
+  },
+  "dependencies": {
+    "glob": "^10.3.3",
+    "glob-promise": "^6.0.3"
   }
 }

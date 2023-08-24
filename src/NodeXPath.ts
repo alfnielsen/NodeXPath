@@ -1,5 +1,6 @@
 import fs from "fs-extra"
 import nodePath from "path"
+import glob, { Glob } from "glob-promise"
 
 export type NodeXPathType = "file" | "dir"
 
@@ -104,13 +105,13 @@ export class NodeXPath<TJson = any> {
   async getChildDirs() {
     if (this.type === "file") return []
     let children = await fs.readdir(this.fullPath, { withFileTypes: true })
-    let dirs = children.filter((item) => item.isDirectory())
+    let dirs = children.filter(item => item.isDirectory())
     return dirs
   }
   async getChildFiles() {
     if (this.type === "file") return []
     let children = await fs.readdir(this.fullPath, { withFileTypes: true })
-    let files = children.filter((item) => item.isFile())
+    let files = children.filter(item => item.isFile())
     return files
   }
 
@@ -235,12 +236,99 @@ export const setIndent = (indent: string) => {
   _indent = indent
 }
 
+export const standardGlobIngorePattern = ["**/bin/**", "**/node_modules/**", "**/obj/**"]
+export const processCwd = process.cwd()
+export enum FileSearchType {
+  /** Search for a file with the exact name */
+  exact = "exact",
+  /** Search for a file with the name starting with the search term */
+  start = "start",
+  /** Search for a file with the name ending with the search term */
+  end = "end",
+  /** Search for a file with the name containing the search term */
+  contains = "contains",
+}
+
+export type constructGlobPatternOptions = {
+  /** string to search for (using the defined searchType)  */
+  searchTerm?: string | string[]
+  /** default is 'conrains'  */
+  searchType?: FileSearchType
+  /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
+  multiplePreExtensions?: boolean
+  /** file extention */
+  ext?: string | string[]
+}
+
+export const constructGlobPattern = (options: constructGlobPatternOptions = {}) => {
+  const { searchTerm, ext, searchType = FileSearchType.contains, multiplePreExtensions = false } = options
+  let pattern = `**/`
+  switch (searchType) {
+    case FileSearchType.exact:
+      pattern += `${searchTerm}`
+      break
+    case FileSearchType.start:
+      pattern += `${searchTerm}*`
+      break
+    case FileSearchType.end:
+      pattern += `*${searchTerm}`
+      break
+    case FileSearchType.contains:
+      pattern += `*${searchTerm}*`
+      break
+  }
+  if (multiplePreExtensions) {
+    pattern += `?(.!(.))`
+  }
+  if (ext) {
+    pattern += `.${ext}`
+  }
+  return pattern
+}
+
 export const x = {
   fromPath: NodeXPath.fromPath,
   fromPathWithContent: NodeXPath.fromPathWithContent,
   fromRelPath: NodeXPath.fromRelPath,
   fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
   sep: nodePath.sep,
+  processCwd,
+  standardGlobIngorePattern,
+  async glob(
+    pattern: string,
+    { ignore = standardGlobIngorePattern, cwd = processCwd, nocase = true, dot = true } = {}
+  ) {
+    return await glob(pattern, {
+      ignore,
+      cwd,
+      nocase,
+      dot,
+    })
+  },
+  /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
+  async searchFileName(
+    options: constructGlobPatternOptions & {
+      ignore?: string[]
+      cwd?: string
+      nocase?: boolean
+      dot?: boolean
+    } = {}
+  ) {
+    const { ignore, cwd, nocase, dot, ...searchOptions } = options
+    const pattern = constructGlobPattern({ ...searchOptions })
+    return await glob(pattern, {
+      ignore,
+      cwd,
+      nocase,
+      dot,
+    })
+  },
+  filename(fullPath: string) {
+    return nodePath.basename(fullPath)
+  },
+  dir(fullPath: string) {
+    return nodePath.dirname(fullPath)
+  },
   join(...paths: string[]) {
     let fullPath = nodePath.join(...paths)
     return fullPath
@@ -449,14 +537,14 @@ export const x = {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true, encoding, recursive })
-    let dirs = children.filter((item) => item.isDirectory())
+    let dirs = children.filter(item => item.isDirectory())
     return dirs
   },
   async childFiles(fullPath: string, { encoding, recursive }: { encoding?: BufferEncoding; recursive?: boolean } = {}) {
     let exists = await fs.pathExists(fullPath)
     if (!exists) return []
     let children = await fs.readdir(fullPath, { withFileTypes: true, encoding, recursive })
-    let files = children.filter((item) => item.isFile())
+    let files = children.filter(item => item.isFile())
     return files
   },
   relativeTo: (from: string, to: string) => {

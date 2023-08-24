@@ -47,12 +47,52 @@ export declare function fx(fullPath: string): Promise<NodeXPath<unknown>>;
 export declare const indentRegex: RegExp;
 export declare const emptyLineRegex: RegExp;
 export declare const setIndent: (indent: string) => void;
+export declare const standardGlobIngorePattern: string[];
+export declare const processCwd: string;
+export declare enum FileSearchType {
+    /** Search for a file with the exact name */
+    exact = "exact",
+    /** Search for a file with the name starting with the search term */
+    start = "start",
+    /** Search for a file with the name ending with the search term */
+    end = "end",
+    /** Search for a file with the name containing the search term */
+    contains = "contains"
+}
+export type constructGlobPatternOptions = {
+    /** string to search for (using the defined searchType)  */
+    searchTerm?: string | string[];
+    /** default is 'conrains'  */
+    searchType?: FileSearchType;
+    /** Allow finding files with multiple extension - Ex: searchTerm: file, ext: ts (will find: file.ts and file.util.ts)  */
+    multiplePreExtensions?: boolean;
+    /** file extention */
+    ext?: string | string[];
+};
+export declare const constructGlobPattern: (options?: constructGlobPatternOptions) => string;
 export declare const x: {
     fromPath: typeof NodeXPath.fromPath;
     fromPathWithContent: typeof NodeXPath.fromPathWithContent;
     fromRelPath: typeof NodeXPath.fromRelPath;
     fromRelPathWithContent: typeof NodeXPath.fromRelPathWithContent;
     sep: "\\" | "/";
+    processCwd: string;
+    standardGlobIngorePattern: string[];
+    glob(pattern: string, { ignore, cwd, nocase, dot }?: {
+        ignore?: string[] | undefined;
+        cwd?: string | undefined;
+        nocase?: boolean | undefined;
+        dot?: boolean | undefined;
+    }): Promise<string[]>;
+    /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
+    searchFileName(options?: constructGlobPatternOptions & {
+        ignore?: string[];
+        cwd?: string;
+        nocase?: boolean;
+        dot?: boolean;
+    }): Promise<string[]>;
+    filename(fullPath: string): string;
+    dir(fullPath: string): string;
     join(...paths: string[]): string;
     lines(content: string): string[];
     trimEmptyLines(content: string): string;

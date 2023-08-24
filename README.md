@@ -22,6 +22,43 @@ export const x = {
   fromRelPath: NodeXPath.fromRelPath,
   fromRelPathWithContent: NodeXPath.fromRelPathWithContent,
   sep: nodePath.sep,
+  processCwd,
+  standardGlobIngorePattern,
+  async glob(
+    pattern: string,
+    { ignore = standardGlobIngorePattern, cwd = processCwd, nocase = true, dot = true } = {}
+  ) {
+    return await glob(pattern, {
+      ignore,
+      cwd,
+      nocase,
+      dot,
+    })
+  },
+  /** Wrap on glob search. Creates a glob pattern: '**./*<searchTerm>*' */
+  async searchFileName(
+    options: constructGlobPatternOptions & {
+      ignore?: string[]
+      cwd?: string
+      nocase?: boolean
+      dot?: boolean
+    } = {}
+  ) {
+    const { ignore, cwd, nocase, dot, ...searchOptions } = options
+    const pattern = constructGlobPattern({ ...searchOptions })
+    return await glob(pattern, {
+      ignore,
+      cwd,
+      nocase,
+      dot,
+    })
+  },
+  filename(fullPath: string) {
+    return nodePath.basename(fullPath)
+  },
+  dir(fullPath: string) {
+    return nodePath.dirname(fullPath)
+  },
   join(...paths: string[]) {
     let fullPath = nodePath.join(...paths)
     return fullPath
