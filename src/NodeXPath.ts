@@ -296,19 +296,23 @@ export type GlobPatternOptions = {
 export const constructGlobPattern = (options: GlobPatternOptions = {}) => {
   const { term, ext, mustHaveExt = true, searchType = FileSearchType.contains, allowMultipleExt = false } = options
   let pattern = `**/`
-  switch (searchType) {
-    case FileSearchType.exact:
-      pattern += `${term}`
-      break
-    case FileSearchType.start:
-      pattern += `${term}*`
-      break
-    case FileSearchType.end:
-      pattern += `*${term}`
-      break
-    case FileSearchType.contains:
-      pattern += `*${term}*`
-      break
+  if (term) {
+    switch (searchType) {
+      case FileSearchType.exact:
+        pattern += `${term}`
+        break
+      case FileSearchType.start:
+        pattern += `${term}*`
+        break
+      case FileSearchType.end:
+        pattern += `*${term}`
+        break
+      case FileSearchType.contains:
+        pattern += `*${term}*`
+        break
+    }
+  } else {
+    pattern += `*`
   }
   if (allowMultipleExt) {
     pattern += `?(.!(.))`

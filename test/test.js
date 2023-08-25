@@ -12,6 +12,11 @@ console.log("x.search")
 const searchResult = await x.search({ term: "data" })
 console.log(searchResult)
 
+// x.search (ext)
+console.log("x.search ext")
+const searchResultExt = await x.search({ cwd: "test", ext: ["ts", "tsx"] })
+console.log(searchResultExt)
+
 // x.findPath
 console.log("x.findPath")
 const findPathResult = await x.findPath({ term: "data" })
